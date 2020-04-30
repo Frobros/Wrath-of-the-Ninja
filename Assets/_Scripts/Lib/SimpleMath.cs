@@ -80,4 +80,22 @@ public class SimpleMath : MonoBehaviour
         result[array.Length] = elementToAdd;
         return result;
     }
+
+    internal static bool isValueInRange(float value, float from, float to)
+    {
+        if (from < to)
+        {
+            return from <= value && value <= to;
+        }
+        else
+        {
+            return to <= value && value <= from;
+        }
+    }
+
+    internal static bool PointInBound(Vector2 point, Vector2 boundCorner1, Vector2 boundCorner2)
+    {
+        return isValueInRange(point.x, boundCorner1.x, boundCorner2.x)
+            && isValueInRange(point.y, boundCorner1.y, boundCorner2.y);
+    }
 }
