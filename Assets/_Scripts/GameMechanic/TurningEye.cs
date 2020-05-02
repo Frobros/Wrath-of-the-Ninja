@@ -11,40 +11,36 @@ public class TurningEye : MonoBehaviour
 
     private void Start()
     {
-        if (Mathf.Abs(movement.speed) > 0F)
-            rotationSpeed = 180F / movement.tStayFor;
+        rotationSpeed = 180F / movement.tStayFor;
     }
 
     void Update()
     {
-        if (Mathf.Abs(movement.speed) > 0F)
+        if (!turning && movement.staying)
         {
-            if (!turning && movement.staying)
+            turning = true;
+            if (movement.facingRight) rotationSpeed = -Mathf.Abs(rotationSpeed);
+            else rotationSpeed = Mathf.Abs(rotationSpeed);
+        }
+        else if (!movement.staying)
+        {
+            turning = false;
+            turnedAround = false;
+            rotatedAngle = 0F;
+        }
+        else if (turning)
+        {
+            if (!turnedAround && rotatedAngle > 90F)
             {
-                turning = true;
+                movement.TurnAround();
+                turnedAround = true;
                 if (movement.facingRight) rotationSpeed = -Mathf.Abs(rotationSpeed);
                 else rotationSpeed = Mathf.Abs(rotationSpeed);
-            }
-            else if (!movement.staying)
+            } else
             {
-                turning = false;
-                turnedAround = false;
-                rotatedAngle = 0F;
+                rotatedAngle += Time.deltaTime * Mathf.Abs(rotationSpeed);
             }
-            else if (turning)
-            {
-                if (!turnedAround && rotatedAngle > 90F)
-                {
-                    movement.TurnAround();
-                    turnedAround = true;
-                    if (movement.facingRight) rotationSpeed = -Mathf.Abs(rotationSpeed);
-                    else rotationSpeed = Mathf.Abs(rotationSpeed);
-                } else
-                {
-                    rotatedAngle += Time.deltaTime * Mathf.Abs(rotationSpeed);
-                }
-                transform.Rotate(Time.deltaTime * new Vector3(0F, rotationSpeed, 0F));
-            }
+            transform.Rotate(Time.deltaTime * new Vector3(0F, rotationSpeed, 0F));
         }
     }
 }
