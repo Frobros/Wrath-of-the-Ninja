@@ -9,12 +9,13 @@ public class Lamp : MonoBehaviour
     private void Start()
     {
         light = GetComponent<Light2D>();
-        polygon = gameObject.AddComponent<PolygonCollider2D>();
-        polygon.SetPath(0, new[] {
+        polygon = gameObject.GetComponent<PolygonCollider2D>();
+        polygon.points = new[] {
             (Vector2) light.shapePath[0],
             (Vector2) light.shapePath[1],
-            (Vector2) light.shapePath[2]
-        });
+            (Vector2) light.shapePath[2],
+            (Vector2) light.shapePath[3]
+        };
         polygon.isTrigger = true;
     }
 
