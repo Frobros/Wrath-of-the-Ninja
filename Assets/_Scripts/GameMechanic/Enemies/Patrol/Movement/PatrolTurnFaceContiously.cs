@@ -3,17 +3,17 @@ using UnityEngine;
 
 public class PatrolTurnFaceContiously : MonoBehaviour
 {
-
     public IEnumerator TurnAround(PatrolMovement patrolMovement)
     {
+        yield return new WaitForSeconds(patrolMovement.fStayFor);
         float currentAngle = patrolMovement.bMovingRight 
             ? 0f
             : 180f;
         float angleIncreasePerSec = patrolMovement.bMovingRight 
-            ? 180f / patrolMovement.fStayFor
-            : -180f / patrolMovement.fStayFor;
-        float perpendicularAt = Time.time + .5f * patrolMovement.fStayFor;
-        float rotatedAt = Time.time + patrolMovement.fStayFor;
+            ? 180f / patrolMovement.fTurnAroundFor
+            : -180f / patrolMovement.fTurnAroundFor;
+        float perpendicularAt = Time.time + .5f * patrolMovement.fTurnAroundFor;
+        float rotatedAt = Time.time + patrolMovement.fTurnAroundFor;
 
         while (Time.time < perpendicularAt)
         {

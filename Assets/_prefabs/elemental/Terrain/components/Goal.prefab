@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 2929345254751063074}
   - component: {fileID: 2929345254751063072}
   - component: {fileID: 2929345255568002649}
-  m_Layer: 0
-  m_Name: openWindow
+  m_Layer: 2
+  m_Name: Goal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

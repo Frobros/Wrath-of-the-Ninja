@@ -132,4 +132,9 @@ public class SimpleMath : MonoBehaviour
             return false;
         }
     }
+
+    internal static bool PointACloserToPointC(Vector2 pointA, Vector2 pointB, Vector2 pointC)
+    {
+        return (pointA - pointC).sqrMagnitude < (pointB - pointC).sqrMagnitude;
+    }
 }

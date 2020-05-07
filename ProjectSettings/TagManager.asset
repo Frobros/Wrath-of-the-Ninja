@@ -10,6 +10,9 @@ TagManager:
   - TextBoxBackground
   - TextBoxContent
   - TextBoxAuthor
+  - Hider
+  - floor
+  - trigger
   layers:
   - Default
   - TransparentFX
@@ -23,13 +26,13 @@ TagManager:
   - Player
   - Enemy
   - SafeZone
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - PlayerHidden
+  - Ground
+  - Ledge
+  - ClimbableLeft
+  - ClimbableRight
+  - PermeableFloor
+  - Slippery
   - 
   - 
   - 

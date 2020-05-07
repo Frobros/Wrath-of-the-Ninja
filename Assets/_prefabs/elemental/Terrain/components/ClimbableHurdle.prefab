@@ -130,7 +130,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4045576134694128}
   - component: {fileID: 61063991064552880}
-  m_Layer: 9
+  m_Layer: 14
   m_Name: LeftLedge
   m_TagString: trigger
   m_Icon: {fileID: 0}
@@ -187,9 +187,9 @@ GameObject:
   m_Component:
   - component: {fileID: 4886076086110442}
   - component: {fileID: 61915852657430264}
-  m_Layer: 9
+  m_Layer: 14
   m_Name: RightLedge
-  m_TagString: trigger
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4861022587290808}
   - component: {fileID: 68306210963061318}
   - component: {fileID: 251086263944053488}
-  m_Layer: 12
+  m_Layer: 17
   m_Name: PermeableFloor
   m_TagString: Untagged
   m_Icon: {fileID: 0}

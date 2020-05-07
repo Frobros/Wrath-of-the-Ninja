@@ -7,6 +7,7 @@ public class PatrolMovement : MonoBehaviour
     public Transform groundDetection;
     public float fSpeed;
     public float fStayFor;
+    public float fTurnAroundFor;
     public float fMoveForMax;
 
     [HideInInspector]
@@ -14,7 +15,7 @@ public class PatrolMovement : MonoBehaviour
     private float fStayAt = 0;
     
     private float groundInfoRayDistance = .2f;
-    private int whatIsGround = 1;
+    public LayerMask whatIsGround;
 
     [HideInInspector]
     public bool bStopMoving = false;
@@ -40,7 +41,7 @@ public class PatrolMovement : MonoBehaviour
 
         if (bStopMoving && fMoveAt < Time.time)
         {
-            fMoveAt = Time.time + fStayFor;
+            fMoveAt = Time.time + fStayFor + fTurnAroundFor;
             StartCoroutine(GetComponentInChildren<PatrolTurnFaceContiously>().TurnAround(this));
             bStopMoving = false;
             bTurnedAround = false;
@@ -73,6 +74,22 @@ public class PatrolMovement : MonoBehaviour
         {
             transform.eulerAngles = new Vector3(0, 0, 0);
             bMovingRight = true;
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.collider.gameObject.layer == LayerMask.NameToLayer("SafeZone"))
+        {
+            GetComponent<Collider2D>().isTrigger = true;
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.gameObject.layer == LayerMask.NameToLayer("SafeZone"))
+        {
+            GetComponent<Collider2D>().isTrigger = false;
         }
     }
 }

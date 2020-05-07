@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4583109215581254}
   - component: {fileID: 61269884589988900}
-  m_Layer: 9
+  m_Layer: 14
   m_Name: LedgePosition
   m_TagString: trigger
   m_Icon: {fileID: 0}
@@ -68,7 +68,7 @@ GameObject:
   - component: {fileID: 4838123737718156}
   - component: {fileID: 61470904629751072}
   - component: {fileID: 713050961}
-  m_Layer: 10
+  m_Layer: 15
   m_Name: LadderFacingLeft
   m_TagString: floor
   m_Icon: {fileID: 0}

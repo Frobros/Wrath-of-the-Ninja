@@ -49,7 +49,7 @@ public class NinjaMove : MonoBehaviour {
 
     private void FixedUpdate()
     {
-        DebugJumpAndFall();
+        // DebugJumpAndFall();
 
         if (!state.isWallJumping())
         {

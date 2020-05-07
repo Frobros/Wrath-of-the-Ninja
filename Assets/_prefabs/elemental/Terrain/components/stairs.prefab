@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5126504398119196482}
   - component: {fileID: 7749058089211385220}
   - component: {fileID: 8106856784937614174}
-  m_Layer: 15
+  m_Layer: 18
   m_Name: stairs
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -19,13 +19,13 @@ public class NinjaStatesAnimationSound : MonoBehaviour
     private new CapsuleCollider2D collider;
     private Animator animator;
     
-    private int
-        whatIsClimbableLeft = 1 << 10,
-        whatIsClimbableRight = 1 << 11,
-        whatIsGround = 1,
-        whatIsLedge = 1 << 9,
-        whatIsPermeable = 1 << 12,
-        whatIsSlippery = 1 << 15;
+    public LayerMask
+        whatIsClimbableLeft,
+        whatIsClimbableRight,
+        whatIsGround,
+        whatIsLedge,
+        whatIsPermeable,
+        whatIsSlippery;
 
     private float
         boxSize = 0.005f,
