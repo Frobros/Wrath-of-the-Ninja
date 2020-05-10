@@ -84,13 +84,7 @@ public class FieldOfView : MonoBehaviour
             )
                 .OrderBy(hit => hit.distance)
                 .ToArray();
-            /*
-            Debug.DrawRay(
-                transform.position,
-                inLightViewDistance * projectedRayDirection,
-                Color.white
-            );
-            */
+                        
             RaycastHit2D inverseExtendedRayHitsPlayer;
             RaycastHit2D inverseExtendedRayIsBlocked;
             RaycastHit2D[] inverseExtendedRayHitsLights;
@@ -189,12 +183,6 @@ public class FieldOfView : MonoBehaviour
                         fovGO.GetComponent<InLightFieldOfView>().setPresent();
                         fovGO.GetComponent<InLightFieldOfView>().addVertex(vertexStart);
                         fovGO.GetComponent<InLightFieldOfView>().addVertex(vertexEnd);
-                        Debug.DrawLine(
-                            vertexStart,
-                            vertexEnd,
-                            Color.red
-                        );
-
 
                         if ((extendedRayHitsPlayer.collider || inverseExtendedRayHitsPlayer.collider)
                             && (SimpleMath.PointInBound(extendedRayHitsPlayer.point, startOfSightInLight, endOfSightInLight) 
@@ -257,6 +245,7 @@ public class FieldOfView : MonoBehaviour
                 normalViewRayLength,
                 whatIsPlayer
             );
+
             if (raycastHit2D.collider)
             {
                 vertex = InverseProject3DPointOntoXYPlane(vertex, raycastHit2D.point);
@@ -307,11 +296,7 @@ public class FieldOfView : MonoBehaviour
 
     private Vector2 Project3DPointOntoXYPlane(Vector3 vertex)
     {
-        float rotationFactorX = Mathf.Cos(transform.eulerAngles.y * Mathf.Deg2Rad);
-        return new Vector2(
-            rotationFactorX * vertex.x,
-            vertex.y
-        );
+        return (Vector2) (transform.rotation * vertex);
     }
 
     private Vector3 InverseProject3DPointOntoXYPlane(Vector3 vertex, Vector2 hitpoint)
