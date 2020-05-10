@@ -9,7 +9,7 @@ public class FieldOfView : MonoBehaviour
     private Mesh mesh;
     
     public LayerMask whatBlocksRay;
-    public LayerMask whatIsPlayer;
+    public LayerMask whatIsSuspicious;
     public LayerMask whatIsLight;
 
 
@@ -18,7 +18,7 @@ public class FieldOfView : MonoBehaviour
     public float normalViewDistance = 2f;
     public float inLightViewDistance = 5f;
 
-    private float fovAngle = 90f;
+    public float fovAngle = 90f;
     private int rayCount = 100;
     private List<GameObject> inLightFieldOfViews;
     public bool detected;
@@ -68,7 +68,7 @@ public class FieldOfView : MonoBehaviour
                 transform.position,
                 projectedRayDirection,
                 inLightViewRayLength,
-                whatIsPlayer
+                whatIsSuspicious
             );
             RaycastHit2D extendedRayIsBlocked = Physics2D.Raycast(
                 transform.position,
@@ -94,7 +94,7 @@ public class FieldOfView : MonoBehaviour
                     endOfInLightRay,
                     -projectedRayDirection,
                     inLightViewRayLength,
-                    whatIsPlayer
+                    whatIsSuspicious
                 );
                 inverseExtendedRayIsBlocked = Physics2D.Raycast(
                     endOfInLightRay,
@@ -243,7 +243,7 @@ public class FieldOfView : MonoBehaviour
                 transform.position,
                 projectedRayDirection,
                 normalViewRayLength,
-                whatIsPlayer
+                whatIsSuspicious
             );
 
             if (raycastHit2D.collider)
