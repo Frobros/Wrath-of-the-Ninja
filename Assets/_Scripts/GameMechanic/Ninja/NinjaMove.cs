@@ -34,6 +34,8 @@ public class NinjaMove : MonoBehaviour {
     private GameObject line;
     private int lineIndex = 0;
     private int maximumNumberOfLines = 200;
+    private float fTryToPassPermeableFloorRemember = 0f;
+    private float fTryToPassPermeableFloorRememberTime = 0.25f;
 
     void Start()
     {
@@ -131,43 +133,53 @@ public class NinjaMove : MonoBehaviour {
     private void HandleJumpAndFall() {
 
         fGroundedRemember -= Time.deltaTime;
-        if (state.isGrounded())
-        {
-            fGroundedRemember = fGroundedRememberTime;
-            
-        }
-        fJumpPressedRemember -= Time.deltaTime;
-        if (state.jumpButton)
-        {
-            fJumpPressedRemember = fJumpPressedRememberTime;
-        }
+        fTryToPassPermeableFloorRemember -= Time.deltaTime;
+        bool tryToPassPermeableFloor = state.isOnPermeableFloor() && InputManager.down && InputManager.jump;
 
-        if (fJumpPressedRemember > 0 && fGroundedRemember > 0 && !state.isDucking())
-        {
-            fJumpPressedRemember = 0F;
-            fGroundedRemember = 0F;
-            physicalBody.velocity = new Vector2(physicalBody.velocity.x, jumpHeight);
+        if (tryToPassPermeableFloor) {
+            fTryToPassPermeableFloorRemember = fTryToPassPermeableFloorRememberTime;
         }
-  
-        if (state.jumpButton && state.isOnWall())
-        {
-            HandleWallJump();
-        }
-        else if (state.isWallJumping())
+        else if (fTryToPassPermeableFloorRemember < 0f)
         {
 
-            float horizontalVelocity = 0f;
-            if (state.commitAndGo())
+            if (state.isGrounded())
             {
-                horizontalVelocity = state.horizontal * walkingSpeed;
+                fGroundedRemember = fGroundedRememberTime;
+
             }
-            horizontalVelocity = Mathf.Abs(horizontalVelocity) > Mathf.Abs(physicalBody.velocity.x) ? horizontalVelocity : physicalBody.velocity.x;
-            physicalBody.velocity = new Vector2(horizontalVelocity, physicalBody.velocity.y);
-            /*
-            float horizontalVelocity = state.horizontal * walkingSpeed;
-            horizontalVelocity = Mathf.SmoothDamp(physicalBody.velocity.x, horizontalVelocity, ref velocityX, 10F*horizontalDamping);
-            physicalBody.velocity = new Vector2(horizontalVelocity, physicalBody.velocity.y);
-            */
+            fJumpPressedRemember -= Time.deltaTime;
+            if (state.jumpButton)
+            {
+                fJumpPressedRemember = fJumpPressedRememberTime;
+            }
+
+            if (fJumpPressedRemember > 0 && fGroundedRemember > 0 && !state.isDucking())
+            {
+                fJumpPressedRemember = 0F;
+                fGroundedRemember = 0F;
+                physicalBody.velocity = new Vector2(physicalBody.velocity.x, jumpHeight);
+            }
+
+            if (state.jumpButton && state.isOnWall())
+            {
+                HandleWallJump();
+            }
+            else if (state.isWallJumping())
+            {
+
+                float horizontalVelocity = 0f;
+                if (state.commitAndGo())
+                {
+                    horizontalVelocity = state.horizontal * walkingSpeed;
+                }
+                horizontalVelocity = Mathf.Abs(horizontalVelocity) > Mathf.Abs(physicalBody.velocity.x) ? horizontalVelocity : physicalBody.velocity.x;
+                physicalBody.velocity = new Vector2(horizontalVelocity, physicalBody.velocity.y);
+                /*
+                float horizontalVelocity = state.horizontal * walkingSpeed;
+                horizontalVelocity = Mathf.SmoothDamp(physicalBody.velocity.x, horizontalVelocity, ref velocityX, 10F*horizontalDamping);
+                physicalBody.velocity = new Vector2(horizontalVelocity, physicalBody.velocity.y);
+                */
+            }
         }
 
         if (!InputManager.jumpContinuous && physicalBody.velocity.y > 0F)

@@ -98,7 +98,7 @@ MonoBehaviour:
   whatBlocksRay:
     serializedVersion: 2
     m_Bits: 8193
-  whatIsPlayer:
+  whatIsSuspicious:
     serializedVersion: 2
     m_Bits: 512
   whatIsLight:
@@ -106,6 +106,7 @@ MonoBehaviour:
     m_Bits: 256
   normalViewDistance: 4
   inLightViewDistance: 20
+  fovAngle: 90
   detected: 0
 --- !u!114 &8403607398314682577
 MonoBehaviour:
