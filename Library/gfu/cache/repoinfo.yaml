@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cacheType: 1
-  lastUpdatedAtString: 2020-05-12T17:57:40.379+02:00
-  initializedAtString: 2020-05-12T17:57:40.379+02:00
+  lastUpdatedAtString: 2020-05-12T18:59:08.972+02:00
+  initializedAtString: 2020-05-12T18:59:08.972+02:00
   currentGitRemote:
     name: origin
     url: https://github.com/Frobros/Wrath-of-the-Ninja.git
