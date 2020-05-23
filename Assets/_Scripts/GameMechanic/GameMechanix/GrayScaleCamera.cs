@@ -15,7 +15,7 @@ public class GrayScaleCamera : MonoBehaviour
     }
     void OnRenderImage(RenderTexture source, RenderTexture destination)
     {
-        if (!grayedOut && player != null && player.isDead())
+        if (!grayedOut && player != null && player.dead)
         {
             grayscaleMaterial.SetFloat("_BLACK_AND_WHITE", 1);
             grayedOut = true;

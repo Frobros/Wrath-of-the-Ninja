@@ -39,12 +39,7 @@ public class NinjaStatesAnimationSound : MonoBehaviour
         vertical;
 
     private bool
-        collisionIgnored = false,
-        ducking = false,
-        landing = false,
-        sliding = false,
-        stairSliding = false,
-        slipping = false;
+        collisionIgnored = false;
 
     public bool
         climbing = false,
@@ -72,7 +67,12 @@ public class NinjaStatesAnimationSound : MonoBehaviour
         walledUp = false, 
         wallGrab = false, 
         wedged = false,
-        wasClimbingOnSameLadderBefore = false;
+        wasClimbingOnSameLadderBefore = false,
+        ducking = false,
+        landing = false,
+        sliding = false,
+        stairSliding = false,
+        slipping = false;
 
     void Start()
     {
@@ -168,8 +168,15 @@ public class NinjaStatesAnimationSound : MonoBehaviour
             climbingLayerMask = whatIsClimbableLeft;
         else climbingLayerMask = whatIsClimbableRight;
 
-        groundedFront = Physics2D.OverlapBox(groundCheckFront.position, new Vector2(0.5f * collider.size.x - 0.015f, boxSize), 0.0f, whatIsGround | whatIsPermeable);
-        groundedBack = Physics2D.OverlapBox(groundCheckBack.position, new Vector2(0.5f * collider.size.x - 0.015f, boxSize), 0.0f, whatIsGround | whatIsPermeable);
+        groundedFront = Physics2D.OverlapBox(groundCheckFront.position, new Vector2(0.5f * collider.size.x - 0.015f, boxSize), 0.0f, whatIsGround);
+        groundedBack = Physics2D.OverlapBox(groundCheckBack.position, new Vector2(0.5f * collider.size.x - 0.015f, boxSize), 0.0f, whatIsGround);
+        if (!groundedFront || !groundedBack)
+        {
+            groundedFront = physicalBody.velocity.y <= 0f && Physics2D.OverlapBox(groundCheckFront.position, new Vector2(0.5f * collider.size.x - 0.015f, boxSize), 0.0f, whatIsPermeable);
+            groundedBack = physicalBody.velocity.y <= 0f && Physics2D.OverlapBox(groundCheckBack.position, new Vector2(0.5f * collider.size.x - 0.015f, boxSize), 0.0f, whatIsPermeable);
+        }
+
+
         grounded = groundedFront && groundedBack;
         onLedge = Physics2D.OverlapBox(wallCheckUp.position, Vector2.right * boxSize + Vector2.up * 0.25f * collider.size.y, 0.0f, whatIsLedge);
         ladderedUp = Physics2D.OverlapBox(wallCheckUp.position, Vector2.right * boxSize + Vector2.up * 0.25f * collider.size.y, 0.0f, climbingLayerMask);
@@ -296,91 +303,6 @@ public class NinjaStatesAnimationSound : MonoBehaviour
         jumping = false;
     }
 
-    internal float verticalInput()
-    {
-        return vertical;
-    }
-
-    internal bool isWalledDown()
-    {
-        return walledDown;
-    }
-
-    internal bool isOnLedge()
-    {
-        return onLedge;
-    }
-
-    internal bool isClimbing()
-    {
-        return climbing;
-    }
-
-    internal bool isSliding()
-    {
-        return sliding;
-    }
-
-    internal bool isWallGrabbing()
-    {
-        return wallGrab;
-    }
-
-    internal bool isWalled()
-    {
-        return walled;
-    }
-
-    internal bool isGrounded()
-    {
-        return grounded;
-    }
-
-    internal bool isDucking()
-    {
-        return ducking;
-    }
-
-    internal float horizontalInput()
-    {
-        return horizontal;
-    }
-
-    internal bool isSlipping()
-    {
-        return slipping;
-    }
-
-    internal bool isLanding()
-    {
-        return landing;
-    }
-
-    internal bool isFacingRight()
-    {
-        return transform.localScale.x > 0F;
-    }
-
-    internal bool isGroundedFront()
-    {
-        return groundedFront;
-    }
-
-    internal bool isWallJumping()
-    {
-        return wallJumping;
-    }
-
-    internal bool isOnPermeableFloor()
-    {
-        return onPermeableFloor;
-    }
-
-    internal bool isWedged()
-    {
-        return wedged;
-    }
-
     internal bool isOnWall()
     {
         return climbing || sliding || wallGrab;
@@ -401,9 +323,13 @@ public class NinjaStatesAnimationSound : MonoBehaviour
                     : null
             : null;
     }
-    internal bool isDead()
-    {
-        return dead;
-    }
 
+    public bool isDetectableFrom(Vector3 direction)
+    {
+        if (laddered)
+        {
+            return Vector3.Dot(transform.right, direction) < 0;
+        }
+        else return true;
+    }
 }

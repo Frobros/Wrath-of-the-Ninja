@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class NinjaMove : MonoBehaviour {
     private Rigidbody2D physicalBody;
@@ -22,7 +21,6 @@ public class NinjaMove : MonoBehaviour {
         walkingSpeed = 5F,
         wallJumpSpeed = 3F,
         wallJumpHeight = 3F;
-    private float velocityX;
     private float fJumpPressedRemember = 0;
     private float fGroundedRemember = 0;
     public float 
@@ -33,7 +31,6 @@ public class NinjaMove : MonoBehaviour {
     // Jump And Fall Debugging
     private GameObject line;
     private int lineIndex = 0;
-    private int maximumNumberOfLines = 200;
     private float fTryToPassPermeableFloorRemember = 0f;
     private float fTryToPassPermeableFloorRememberTime = 0.25f;
 
@@ -53,13 +50,14 @@ public class NinjaMove : MonoBehaviour {
     {
         // DebugJumpAndFall();
 
-        if (!state.isWallJumping())
+        if (state.wallJumpEndAt < Time.time)
         {
             changeFacing();
             if (state.controlHorizontal) HandleMovement();
             HandleClimbing();
         }
     }
+
 
     void DebugJumpAndFall()
     {
@@ -89,10 +87,10 @@ public class NinjaMove : MonoBehaviour {
 
     private void HandleMovement()
     {
-        if (!state.isWalled())
+        if (!state.walled)
         {
             float horizontalVelocity = walkingSpeed 
-                * (state.isDucking() ? 0.5f : 1F)
+                * (state.ducking ? 0.5f : 1F)
                 * (InputManager.xAxis > 0.2f 
                     ? 1F 
                     : InputManager.xAxis < -0.2f 
@@ -101,12 +99,12 @@ public class NinjaMove : MonoBehaviour {
                 );
             physicalBody.velocity = Vector3.Lerp(physicalBody.velocity, new Vector2(horizontalVelocity, physicalBody.velocity.y), 10F);
         }
-        if (state.isLanding())
+        if (state.landing)
         {
-            physicalBody.AddForce(new Vector3(state.isFacingRight() ? translation : -translation, 0F, 0F), ForceMode2D.Force);
-        } else if(state.isWedged() && !state.isGroundedFront() && !state.isWalled() && physicalBody.velocity.y == 0.0f)
+            physicalBody.AddForce(new Vector3(state.facingRight ? translation : -translation, 0F, 0F), ForceMode2D.Force);
+        } else if(state.wedged && !state.groundedFront && !state.walled && physicalBody.velocity.y == 0.0f)
         {
-            physicalBody.velocity = new Vector2(state.isFacingRight() ? -3.5f : 3.5f, 0.0f);
+            physicalBody.velocity = new Vector2(state.facingRight ? -3.5f : 3.5f, 0.0f);
         }
     }
 
@@ -118,13 +116,13 @@ public class NinjaMove : MonoBehaviour {
         }
         else if (state.isLedgeLanding())
         {
-            physicalBody.velocity = new Vector2(state.isFacingRight() ? ledgeLandingSpeed : -ledgeLandingSpeed, physicalBody.velocity.y); 
+            physicalBody.velocity = new Vector2(state.facingRight ? ledgeLandingSpeed : -ledgeLandingSpeed, physicalBody.velocity.y); 
         }
-        if (state.isClimbing())
+        if (state.climbing)
         {
             physicalBody.velocity = new Vector2(0.0f, climbingSpeed);
         }
-        if (state.isSliding() && physicalBody.velocity.y < -slidingSpeed)
+        if (state.sliding && physicalBody.velocity.y < -slidingSpeed)
         {
             physicalBody.velocity = new Vector2(0F, -slidingSpeed);
         }
@@ -134,7 +132,7 @@ public class NinjaMove : MonoBehaviour {
 
         fGroundedRemember -= Time.deltaTime;
         fTryToPassPermeableFloorRemember -= Time.deltaTime;
-        bool tryToPassPermeableFloor = state.isOnPermeableFloor() && InputManager.down && InputManager.jump;
+        bool tryToPassPermeableFloor = state.onPermeableFloor && InputManager.down && InputManager.jump;
 
         if (tryToPassPermeableFloor) {
             fTryToPassPermeableFloorRemember = fTryToPassPermeableFloorRememberTime;
@@ -142,7 +140,7 @@ public class NinjaMove : MonoBehaviour {
         else if (fTryToPassPermeableFloorRemember < 0f)
         {
 
-            if (state.isGrounded())
+            if (state.grounded)
             {
                 fGroundedRemember = fGroundedRememberTime;
 
@@ -153,7 +151,7 @@ public class NinjaMove : MonoBehaviour {
                 fJumpPressedRemember = fJumpPressedRememberTime;
             }
 
-            if (fJumpPressedRemember > 0 && fGroundedRemember > 0 && !state.isDucking())
+            if (fJumpPressedRemember > 0 && fGroundedRemember > 0 && !state.ducking)
             {
                 fJumpPressedRemember = 0F;
                 fGroundedRemember = 0F;
@@ -164,15 +162,12 @@ public class NinjaMove : MonoBehaviour {
             {
                 HandleWallJump();
             }
-            else if (state.isWallJumping())
+            else if (state.wallJumpEndAt > Time.time)
             {
-
-                float horizontalVelocity = 0f;
-                if (state.commitAndGo())
-                {
-                    horizontalVelocity = state.horizontal * walkingSpeed;
-                }
-                horizontalVelocity = Mathf.Abs(horizontalVelocity) > Mathf.Abs(physicalBody.velocity.x) ? horizontalVelocity : physicalBody.velocity.x;
+                changeFacingBasedOnVelocity();
+                float deltaTime = (state.wallJumpEndAt - Time.time) / state.wallJumpFrame;
+                float horizontalVelocity = Mathf.Lerp(state.horizontal * walkingSpeed, wallJumpDir.x, deltaTime);
+                
                 physicalBody.velocity = new Vector2(horizontalVelocity, physicalBody.velocity.y);
                 /*
                 float horizontalVelocity = state.horizontal * walkingSpeed;
@@ -198,19 +193,34 @@ public class NinjaMove : MonoBehaviour {
     public void HandleWallJump()
     {
         TurnDirection();
-        wallJumpDir = new Vector2(state.isFacingRight() ? wallJumpSpeed : -wallJumpSpeed, wallJumpHeight);
+        wallJumpDir = new Vector2(isFacingRight() ? wallJumpSpeed : -wallJumpSpeed, wallJumpHeight);
         physicalBody.velocity = Vector2.zero;
-        transform.Translate(state.isFacingRight() ? 0.1f * Vector2.right : -0.1f * Vector2.right);
+        Debug.Log(physicalBody.velocity);
+        transform.Translate(state.facingRight ? 0.1f * Vector2.right : -0.1f * Vector2.right);
         physicalBody.velocity = wallJumpDir;
         state.initialzeWallJump();
     }
 
+    private bool isFacingRight()
+    {
+        return transform.localScale.x > 0f;
+    }
+
+    private void changeFacingBasedOnVelocity()
+    {
+        if ((state.facingRight && physicalBody.velocity.x < 0F)
+               || !state.facingRight && physicalBody.velocity.x > 0F)
+        {
+            TurnDirection();
+        }
+    }
+
     void changeFacing()
     {
-        if ((state.isFacingRight() && state.horizontalInput() < 0F)
-            || !state.isFacingRight() && state.horizontalInput() > 0F)
+        if ((state.facingRight && state.horizontal < 0F)
+            || !state.facingRight && state.horizontal > 0F)
         {
-            if (!state.climbing || state.climbing && Mathf.Abs(state.horizontalInput()) > 0.5f)
+            if (!state.climbing || state.climbing && Mathf.Abs(state.horizontal) > 0.5f)
                 TurnDirection();
         }
     }

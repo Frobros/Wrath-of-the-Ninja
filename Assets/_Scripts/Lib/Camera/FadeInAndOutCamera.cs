@@ -54,7 +54,7 @@ public class FadeInAndOutCamera : MonoBehaviour
     {
         if (sceneName.Contains("stage") 
             && SceneManager.GetActiveScene().name.Contains("stage")
-            && FindObjectOfType<NinjaStatesAnimationSound>().isDead()
+            && FindObjectOfType<NinjaStatesAnimationSound>().dead
         ) {
             StartCoroutine(FadeOutContinue(sceneName));
         } else

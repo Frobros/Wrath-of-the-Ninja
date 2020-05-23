@@ -5,7 +5,9 @@ using UnityEngine.Experimental.Rendering.LWRP;
 
 public class Lamp : MonoBehaviour
 {
+    [HideInInspector]
     public int lightId;
+
     private static int numberOfLights = 0;
     Light2D light;
     PolygonCollider2D polygon;

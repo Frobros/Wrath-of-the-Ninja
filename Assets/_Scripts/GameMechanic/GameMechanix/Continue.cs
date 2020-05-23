@@ -31,7 +31,7 @@ public class Continue : MonoBehaviour
     {
         if (player != null && !initialize)
         {
-            if (!frozen && player.isDead())
+            if (!frozen && player.dead)
             {
                 Time.timeScale = 0F;
                 frozen = true;

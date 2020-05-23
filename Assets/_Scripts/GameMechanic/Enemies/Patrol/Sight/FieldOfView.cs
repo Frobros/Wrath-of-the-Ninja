@@ -188,7 +188,7 @@ public class FieldOfView : MonoBehaviour
                             && (SimpleMath.PointInBound(extendedRayHitsPlayer.point, startOfSightInLight, endOfSightInLight) 
                                 || SimpleMath.PointInBound(inverseExtendedRayHitsPlayer.point, startOfSightInLight, endOfSightInLight)))
                         {
-                            currentlyDetected = true;
+                            currentlyDetected = extendedRayHitsPlayer.collider.GetComponent<NinjaStatesAnimationSound>().isDetectableFrom(projectedRayDirection);
                         }
                     }
                 }
@@ -280,7 +280,7 @@ public class FieldOfView : MonoBehaviour
                 if (!raycastHit2D.collider
                     || (raycastHit2D.collider && SimpleMath.PointACloserToPointC(playerDetected.point, raycastHit2D.point, transform.position)))
                 {
-                    currentlyDetected = true;
+                    currentlyDetected = playerDetected.collider.GetComponent<NinjaStatesAnimationSound>().isDetectableFrom(projectedRayDirection);
                 }
             }
 
