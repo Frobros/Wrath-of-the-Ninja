@@ -24,9 +24,6 @@ EditorBuildSettings:
     path: Assets/_scenes/wotn_stage_1_B.unity
     guid: 4a0f99a3659d8cb4faf05d5a5fcba402
   - enabled: 1
-    path: Assets/_scenes/wotn_stage_1_1_B.unity
-    guid: e44928af9a1304b4c98a12e3f5bb86c5
-  - enabled: 1
     path: Assets/_scenes/wotn_stage_2.unity
     guid: eee08cc89c666014dae90a45400f99de
   - enabled: 1
