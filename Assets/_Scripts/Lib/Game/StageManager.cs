@@ -196,13 +196,13 @@ public class StageManager : MonoBehaviour
         if (onStage)
         {
             checkpoints = FindObjectsOfType<Checkpoint>();
-        }
 
-        foreach (Checkpoint checkpoint in checkpoints)
-        {
-            if (currentCheckpoint == checkpoint.getCheckpointIdentifier())
+            foreach (Checkpoint checkpoint in checkpoints)
             {
-                FindObjectOfType<NinjaMove>().transform.position = checkpoint.transform.position;
+                if (currentCheckpoint == checkpoint.getCheckpointIdentifier())
+                {
+                    FindObjectOfType<NinjaMove>().transform.position = checkpoint.transform.position;
+                }
             }
         }
 
