@@ -1,34 +1,22 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class TriggerDoor : MonoBehaviour {
 
     bool open = true;
-    public List<SecurityWatch> list;
+    public SecurityWatch[] watchers;
     BoxCollider2D col;
-	// Use this for initialization
-	void Start () {
-        foreach (GameObject s in GameObject.FindGameObjectsWithTag("security"))
-        {
-            list.Add(s.GetComponent<SecurityWatch>());
-        }
-
+	
+    void Start () {
+        watchers = FindObjectsOfType<SecurityWatch>();
         col = GetComponent<BoxCollider2D>();
 	}
 	
-	// Update is called once per frame
 	void Update () {
         bool closeDoor = false;
 
-		foreach(SecurityWatch s in list)
+		foreach(SecurityWatch s in watchers)
         {
             if (s.isPlayerDetected()) closeDoor = true;
         }
-
-        open = !closeDoor;
-
-        if (open) col.isTrigger = true;
-        else col.isTrigger = false;
     }
 }

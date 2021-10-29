@@ -8,6 +8,7 @@ public class InterpolateMaterial : MonoBehaviour
     private MeshRenderer renderer;
     public Material material1;
     public Material material2;
+    public bool canBeShot;
 
     bool interpolating;
     public float interpolateIn = 3f;
@@ -30,7 +31,11 @@ public class InterpolateMaterial : MonoBehaviour
         {
             lerp = Mathf.Max(lerp - Time.deltaTime / (0.5f * interpolateIn), 0f);
         }
-
         renderer.material.Lerp(material1, material2, lerp);
+
+        if (lerp == 1f && canBeShot)
+        {
+            FindObjectOfType<NinjaStatesAnimationSound>().ShootNinja();
+        }
     }
 }

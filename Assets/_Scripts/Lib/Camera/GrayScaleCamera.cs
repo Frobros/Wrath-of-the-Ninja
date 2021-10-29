@@ -1,24 +1,28 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
+[ExecuteInEditMode]
+[RequireComponent(typeof(Camera))]
 public class GrayScaleCamera : MonoBehaviour
 {
     public Material grayscaleMaterial;
     private NinjaStatesAnimationSound player;
     public bool grayedOut = false;
+    [Range(0f, 1f)]
+    public float grayscale;
 
-    private void Start()
-    {
-        grayedOut = false;
-        player = FindObjectOfType<NinjaStatesAnimationSound>();
-        grayscaleMaterial.SetFloat("_BLACK_AND_WHITE", 0);
-    }
     void OnRenderImage(RenderTexture source, RenderTexture destination)
     {
-        if (!grayedOut && player != null && player.dead)
+        if (player != null && player.dead && !grayedOut)
         {
-            grayscaleMaterial.SetFloat("_BLACK_AND_WHITE", 1);
+            Debug.Log("DEAD!");
             grayedOut = true;
+            grayscaleMaterial.SetFloat("_BLACK_AND_WHITE", 1);
+        }
+        else
+        {
+            Debug.Log("NOT DEAD YET!");
+            grayscaleMaterial.SetFloat("_BLACK_AND_WHITE", grayscale);
         }
         Graphics.Blit(source, destination, grayscaleMaterial);
     }
@@ -39,5 +43,8 @@ public class GrayScaleCamera : MonoBehaviour
     void OnLevelFinishedLoading(Scene scene, LoadSceneMode mode)
     {
         player = FindObjectOfType<NinjaStatesAnimationSound>();
+        grayedOut = false;
+        grayscaleMaterial.SetFloat("_BLACK_AND_WHITE", 1);
+        Debug.Log("RESET GRAY SCALE");
     }
 }

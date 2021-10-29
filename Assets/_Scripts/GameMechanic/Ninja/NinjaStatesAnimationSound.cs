@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class NinjaStatesAnimationSound : MonoBehaviour
 {
+    public GameObject shotSprite;
     public Transform 
         groundCheckBack, 
         groundCheckFront,
@@ -40,6 +41,16 @@ public class NinjaStatesAnimationSound : MonoBehaviour
 
     private bool
         collisionIgnored = false;
+
+    internal void ShootNinja()
+    {
+        if (!dead)
+        {
+            dead = true;
+            FindObjectOfType<AudioManager>().PlaySound("shot", 1f);
+            shotSprite.SetActive(true);
+        }
+    }
 
     public bool
         climbing = false,
@@ -326,9 +337,9 @@ public class NinjaStatesAnimationSound : MonoBehaviour
 
     public bool isDetectableFrom(Vector3 direction)
     {
-        if (laddered)
+        if (onClimbable)
         {
-            return Vector3.Dot(transform.right, direction) < 0;
+            return direction.x > 0 && facingRight || direction.x < 0 && !facingRight;
         }
         else return true;
     }

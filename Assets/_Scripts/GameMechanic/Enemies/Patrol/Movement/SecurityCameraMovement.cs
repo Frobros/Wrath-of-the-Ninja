@@ -24,6 +24,7 @@ public class SecurityCameraMovement : MonoBehaviour {
     {
         startRotation = Quaternion.Euler(startRotationEuler);
         endRotation = Quaternion.Euler(endRotationEuler);
+        transform.rotation = startRotation;
     }
 
     void FixedUpdate() {

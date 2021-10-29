@@ -8,10 +8,12 @@ public class FieldOfViewMovement : MonoBehaviour
     private float currentTime;
     private float forSeconds;
     Quaternion from, to;
+    private bool detected;
 
     void Update()
     {
-        if (turnAround)
+        detected = GetComponent<FieldOfView>().detected;
+        if (turnAround && !detected)
         {
             transform.rotation = transform.parent.rotation * Quaternion.Lerp(from, to, currentTime);
             currentTime += Time.deltaTime / forSeconds;

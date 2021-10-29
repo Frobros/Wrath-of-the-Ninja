@@ -1,6 +1,4 @@
-﻿using System;
-using UnityEditor.Rendering;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PatrolMovement : MonoBehaviour
 {
@@ -13,6 +11,7 @@ public class PatrolMovement : MonoBehaviour
 
     public Vector3 startRotation;
     public Vector3 endRotation;
+    public bool detected = false;
 
     [HideInInspector]
     public float fMoveAt = 0;
@@ -30,28 +29,38 @@ public class PatrolMovement : MonoBehaviour
     private bool bTurnedAround = true;
 
     private FieldOfView fov;
+    private Animator animator;
 
     private void Start()
     {
         fov = GetComponentInChildren<FieldOfView>();
+        animator = GetComponent<Animator>();
         fMoveAt = Time.time;
         fStayAt = Time.time + fMoveForMax;
     }
     private void Update()
     {
-        HandleMovement();
+        detected = fov.detected;
         HandleFieldOfView();
-        GetComponent<Animator>().SetBool("staying", fMoveAt > Time.time);
+        if (!detected) HandleMovement();
+        if (animator) animator.SetBool("staying", fMoveAt > Time.time || detected);
     }
 
     private void HandleMovement()
     {
-        RaycastHit2D groundInfo = Physics2D.Raycast(
-            groundDetection.position,
-            Vector2.down,
-            groundInfoRayDistance,
-            whatIsGround
-        );
+        RaycastHit2D groundInfo = groundDetection 
+            ? Physics2D.Raycast(
+                groundDetection.position,
+                Vector2.down,
+                groundInfoRayDistance,
+                whatIsGround
+            )
+            : Physics2D.Raycast(
+                transform.position,
+                Vector2.zero,
+                0f,
+                whatIsGround
+            );
         if (bTurnedAround && !bStopMoving
             && (!groundInfo.collider || fStayAt < Time.time))
         {
@@ -107,10 +116,6 @@ public class PatrolMovement : MonoBehaviour
         }
 
 
-    }
-
-    public void turnAround()
-    {
     }
 
     private void OnCollisionEnter2D(Collision2D collision)

@@ -2,6 +2,8 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 public class FadeInAndOutCamera : MonoBehaviour
 {
@@ -10,7 +12,7 @@ public class FadeInAndOutCamera : MonoBehaviour
 
     private float overlayColorAlpha;
     private bool colorSet;
-    
+    public float grayScaleFadingSpeed;
 
     private void Awake()
     {
@@ -34,11 +36,23 @@ public class FadeInAndOutCamera : MonoBehaviour
 
     private IEnumerator FadeOutContinue(string sceneName)
     {
-        animator.SetBool("FadeOut", true);
         GameManager.paused = true;
-        yield return new WaitUntil(() => black.color.a == 1);
         FindObjectOfType<Continue>().setText();
-        yield return new WaitUntil(() => InputManager.jump);
+        Volume gloabalVolume = FindObjectOfType<Volume>();
+
+        gloabalVolume.profile.TryGet<ColorAdjustments>(out var colors);
+
+        float grayScale =  0;
+        yield return new WaitUntil(() => {
+            if (grayScale > -100)
+            {
+                grayScale -= grayScaleFadingSpeed;
+                colors.saturation.value = grayScale;
+            }
+            return InputManager.jump;
+        });
+        animator.SetBool("FadeOut", true);
+        yield return new WaitUntil(() => black.color.a == 1);
         SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
     }
 
@@ -53,7 +67,7 @@ public class FadeInAndOutCamera : MonoBehaviour
     public void FadeToNextScene(string sceneName)
     {
         if (sceneName.Contains("stage") 
-            && SceneManager.GetActiveScene().name.Contains("stage")
+            && StageManager.onStage
             && FindObjectOfType<NinjaStatesAnimationSound>().dead
         ) {
             StartCoroutine(FadeOutContinue(sceneName));

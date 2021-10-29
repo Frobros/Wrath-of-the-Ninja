@@ -20,7 +20,7 @@ public class StageManager : MonoBehaviour
         currentCheckpoint = 0,
         lastStage = 3;
 
-    public static string activeScene;    
+    public static string activeSceneName;
     private static FadeInAndOutCamera fader;
 
     private Checkpoint[] checkpoints;
@@ -64,7 +64,6 @@ public class StageManager : MonoBehaviour
             else if (InputManager.confirm)
             {
                 InputManager.confirm = false;
-                currentStage = 1;
                 fader.FadeToNextScene("wotn_intro");
             }
         }
@@ -76,7 +75,7 @@ public class StageManager : MonoBehaviour
         if (!initializing && onIntro && hasTextSceneEnded)
         {
             initializing = true;
-            currentStage = 1;
+            currentStage = 0;
             fader.FadeToNextScene("wotn_stage_" + currentStage);
         }
     }
@@ -118,23 +117,23 @@ public class StageManager : MonoBehaviour
 
     public void IdentifyScene(Scene scene)
     {
-        activeScene = scene.name;
-        onTitle = activeScene.Contains("title");
-        onControls = activeScene.Contains("controls");
-        onIntro = activeScene.Contains("intro");
-        onStage = activeScene.Contains("stage");
-        onOutro = activeScene.Contains("outro");
-        onCredits = activeScene.Contains("credits");
+        activeSceneName = scene.name;
+        onTitle = activeSceneName.Contains("title");
+        onControls = activeSceneName.Contains("controls");
+        onIntro = activeSceneName.Contains("intro");
+        onStage = activeSceneName.Contains("stage");
+        onOutro = activeSceneName.Contains("outro");
+        onCredits = activeSceneName.Contains("credits");
         if (onStage)
         {
-            currentStage = ExtractStageNumber(activeScene);
+            currentStage = ExtractStageNumber(activeSceneName);
         }
     }
 
     private int ExtractStageNumber(string activeScene)
     {
         string[] splitSceneName = activeScene.Split('_');
-        if (splitSceneName.Length == 4)
+        if (splitSceneName.Length == 3)
             return Int32.Parse(splitSceneName[2]);
         return -1;
     }
@@ -191,6 +190,7 @@ public class StageManager : MonoBehaviour
     {
         hasTextSceneEnded = false;
         initializing = false;
+        onStage = scene.name.Contains("stage");
         IdentifyScene(scene);
 
         if (onStage)

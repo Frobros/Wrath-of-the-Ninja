@@ -2,8 +2,8 @@
 
 public class HandleDoor : MonoBehaviour
 {
-    public Vector2 idlePosition;
-    public Vector2 detectedPosition;
+    public Vector2 openLocalPosition;
+    public Vector2 closedLocalPosition;
 
     public FieldOfView[] fovs;
     public bool detected;
@@ -38,20 +38,20 @@ public class HandleDoor : MonoBehaviour
             if (closedAt > Time.time)
             {
                 float deltaTime = (closingIn - (closedAt - Time.time)) / closingIn;
-                transform.position = Vector3.Lerp(idlePosition, detectedPosition, deltaTime);
+                transform.localPosition = Vector3.Lerp(openLocalPosition, closedLocalPosition, deltaTime);
                 closed = true;
             }
             else if (openedAt > Time.time)
             { 
                 float deltaTime = (openingIn - (openedAt - Time.time)) / openingIn;
-                transform.position = Vector3.Lerp(detectedPosition, idlePosition, deltaTime);
+                transform.localPosition = Vector3.Lerp(closedLocalPosition, openLocalPosition, deltaTime);
                 closed = false;
             } else if (closed)
             {
-                transform.position = detectedPosition;
+                transform.localPosition = closedLocalPosition;
             } else
             {
-                transform.position = idlePosition;
+                transform.localPosition = openLocalPosition;
             }
         }
     }

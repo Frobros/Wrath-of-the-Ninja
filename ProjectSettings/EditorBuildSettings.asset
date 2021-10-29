@@ -18,11 +18,11 @@ EditorBuildSettings:
     path: Assets/_scenes/wotn_intro.unity
     guid: 7d781d881b166e64ebf7394ab67df72b
   - enabled: 1
+    path: Assets/_scenes/wotn_stage_0.unity
+    guid: dad9a5e92e5918a4f9716dc6c56e1917
+  - enabled: 1
     path: Assets/_scenes/wotn_stage_1.unity
     guid: db263aa8c7c177b4394456f726a73079
-  - enabled: 1
-    path: Assets/_scenes/wotn_stage_1_B.unity
-    guid: 4a0f99a3659d8cb4faf05d5a5fcba402
   - enabled: 1
     path: Assets/_scenes/wotn_stage_2.unity
     guid: eee08cc89c666014dae90a45400f99de

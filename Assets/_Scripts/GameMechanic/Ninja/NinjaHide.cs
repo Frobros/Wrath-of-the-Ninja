@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class NinjaHide : MonoBehaviour
 {
@@ -55,5 +53,20 @@ public class NinjaHide : MonoBehaviour
             LayerMask.NameToLayer("Enemy"),
             false
         );
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.tag == "Hider")
+        {
+            Hide();
+        }
+    }
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.tag == "Hider")
+        {
+            Unhide();
+        }
     }
 }

@@ -57,6 +57,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -97,7 +98,7 @@ MonoBehaviour:
     type: 3}
   whatBlocksRay:
     serializedVersion: 2
-    m_Bits: 139265
+    m_Bits: 272385
   whatIsSuspicious:
     serializedVersion: 2
     m_Bits: 512
@@ -107,6 +108,7 @@ MonoBehaviour:
   normalViewDistance: 4
   inLightViewDistance: 20
   fovAngle: 90
+  rayCount: 100
   detected: 0
 --- !u!114 &8403607398314682577
 MonoBehaviour:

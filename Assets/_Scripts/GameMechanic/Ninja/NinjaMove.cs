@@ -185,7 +185,6 @@ public class NinjaMove : MonoBehaviour {
         if (physicalBody.velocity.y < 0F && !state.grounded)
         {
             physicalBody.velocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1F) * Time.deltaTime;
-
             // physicalBody.velocity = new Vector2(physicalBody.velocity.x, physicalBody.velocity.y * fallMultiplier);
         }
     }
@@ -195,7 +194,6 @@ public class NinjaMove : MonoBehaviour {
         TurnDirection();
         wallJumpDir = new Vector2(isFacingRight() ? wallJumpSpeed : -wallJumpSpeed, wallJumpHeight);
         physicalBody.velocity = Vector2.zero;
-        Debug.Log(physicalBody.velocity);
         transform.Translate(state.facingRight ? 0.1f * Vector2.right : -0.1f * Vector2.right);
         physicalBody.velocity = wallJumpDir;
         state.initialzeWallJump();

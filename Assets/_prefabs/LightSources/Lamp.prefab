@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3859264450930373801}
   - component: {fileID: 3859264450930373800}
-  - component: {fileID: 3859264450930373802}
+  - component: {fileID: 1785360328715241179}
   m_Layer: 8
   m_Name: Lamp
   m_TagString: Untagged
@@ -55,6 +55,8 @@ MonoBehaviour:
   m_UseNormalMap: 0
   m_LightOrder: 0
   m_AlphaBlendOnOverlap: 0
+  m_ShadowIntensity: 0
+  m_ShadowVolumeIntensity: 0
   m_PointLightInnerAngle: 80
   m_PointLightOuterAngle: 90
   m_PointLightInnerRadius: 10
@@ -71,7 +73,7 @@ MonoBehaviour:
   - {x: 10.117937, y: -6.376681, z: 0}
   - {x: 0.36718273, y: 0.9813425, z: 0}
   - {x: 13.584978, y: 1.3312631, z: 0}
---- !u!114 &3859264450930373802
+--- !u!114 &1785360328715241179
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -80,7 +82,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3859264450930373807}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cdacd1d3fc0ca18469f9308cb8c0aeb4, type: 3}
+  m_Script: {fileID: 11500000, guid: 3360366f0b8ddeb43b11a7689c7bc87b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   lightId: 0

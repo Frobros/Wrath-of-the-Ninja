@@ -13,14 +13,17 @@ public class FollowPlayer : MonoBehaviour
         velocity = 0.0F;
     private bool onStage;
 
-    void FixedUpdate()
+    private void Start()
     {
-        if (onStage) { 
-            if((adjustedBounds == null || player == null) 
-                && GameObject.FindGameObjectWithTag("Player") != null
+        
+    }
+
+    void LateUpdate()
+    {
+        if (onStage) {
+            if((adjustedBounds == null || player == null)
                 && FindObjectOfType<CameraBound>() != null)
             {
-                player = GameObject.FindGameObjectWithTag("Player").transform;
                 transform.position = new Vector3(player.position.x, player.position.y, transform.position.z);
                 initializeBounds();
             } else if (adjustedBounds != null && player != null)
@@ -99,5 +102,10 @@ public class FollowPlayer : MonoBehaviour
     void OnLevelFinishedLoading(Scene scene, LoadSceneMode mode)
     {
         onStage = scene.name.Contains("stage");
+
+        if (onStage)
+        {
+            player = FindObjectOfType<NinjaStatesAnimationSound>().transform;
+        }
     }
 }
