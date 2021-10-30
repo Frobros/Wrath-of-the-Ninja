@@ -59,7 +59,7 @@ public class FieldOfView : MonoBehaviour
         for (int i = 0; i <= rayCount; i++)
         {
             Vector3 vertex = SimpleMath.VectorFromAngle(currentAngle);
-            Vector2 projectedRayDirection = Project3DPointOntoXYPlane(vertex);
+            Vector2 projectedRayDirection = transform.TransformDirection(Project3DPointOntoXYPlane(vertex));
             float inLightViewRayLength = inLightViewDistance * projectedRayDirection.magnitude;
             Vector2 endOfInLightRay = (Vector2)transform.position + inLightViewDistance * projectedRayDirection;
             Vector2 endOfNormalRay = (Vector2)transform.position + normalViewDistance * projectedRayDirection;
@@ -230,7 +230,7 @@ public class FieldOfView : MonoBehaviour
         for (int i = 0; i <= rayCount; i++)
         {
             Vector3 vertex = SimpleMath.VectorFromAngle(currentAngle);
-            Vector2 projectedRayDirection = Project3DPointOntoXYPlane(vertex);
+            Vector2 projectedRayDirection = transform.TransformDirection(Project3DPointOntoXYPlane(vertex));
             float normalViewRayLength = normalViewDistance * projectedRayDirection.magnitude;
 
             // world space
@@ -298,7 +298,7 @@ public class FieldOfView : MonoBehaviour
 
     private Vector2 Project3DPointOntoXYPlane(Vector3 vertex)
     {
-        return (Vector2) (transform.rotation * vertex);
+        return (transform.rotation * vertex);
     }
 
     private Vector3 InverseProject3DPointOntoXYPlane(Vector3 vertex, Vector2 hitpoint)
