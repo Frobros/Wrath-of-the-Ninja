@@ -10,7 +10,7 @@ public class SecurityCameraMovement : SecurityParent {
     private float tStayTime;
     private float tRotateTime;
 
-    private FieldOfView fov;
+    private SecurityLookAtPlayer lookAtPlayer;
     private Quaternion startRotation, endRotation;
     private bool rotateForward = true;
     private bool isMoving;
@@ -21,11 +21,11 @@ public class SecurityCameraMovement : SecurityParent {
         startRotation = Quaternion.Euler(0, 0, startRotationEulerZ);
         endRotation = Quaternion.Euler(0, 0, endRotationEulerZ);
         transform.rotation = startRotation;
-        fov = GetComponentInChildren<FieldOfView>();
+        lookAtPlayer = GetComponentInChildren<SecurityLookAtPlayer>();
     }
 
     void FixedUpdate() {
-        if (fov.IsReset)
+        if (lookAtPlayer.IsReset)
         {
             if (!isMoving)
             {
@@ -44,18 +44,18 @@ public class SecurityCameraMovement : SecurityParent {
         {
             tRotateTime += Time.deltaTime;
             transform.rotation = MyMath.InterpolateFunctions.Interpolate(from, to, tRotateTime / tRotateFor, interpolateType);
-            return tRotateTime >= tRotateFor || fov.IsDetected;
+            return tRotateTime >= tRotateFor || lookAtPlayer.IsDetected;
         });
-        if (!fov.IsDetected)
+        if (!lookAtPlayer.IsDetected)
         {
             tStayTime = 0f;
             yield return new WaitUntil(() =>
             {
                 tStayTime += Time.deltaTime;
-                return tStayTime >= tStayFor || fov.IsDetected;
+                return tStayTime >= tStayFor || lookAtPlayer.IsDetected;
             });
 
-            if (!fov.IsDetected)
+            if (!lookAtPlayer.IsDetected)
             {
                 rotateForward = !rotateForward;
                 wasInterrupted = false;

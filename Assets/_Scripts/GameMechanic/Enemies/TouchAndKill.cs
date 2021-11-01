@@ -9,7 +9,6 @@ public class TouchAndKill : MonoBehaviour
         if (collision.collider.tag == "Player") {
             if (killByShot) collision.gameObject.GetComponent<NinjaStatesAnimationSound>().ShootNinja();
             else collision.gameObject.GetComponent<NinjaStatesAnimationSound>().KillNinja();
-            Debug.Log("KILL");
         }
     }
 }

@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-// [ExecuteInEditMode]
 public class FieldOfView : MonoBehaviour
 {
     [SerializeField] private GameObject prefabInLightFieldOfView;
@@ -14,41 +12,26 @@ public class FieldOfView : MonoBehaviour
     [SerializeField] private float normalViewDistance = 2f;
     [SerializeField] private float inLightViewDistance = 5f;
     [SerializeField] private float fovAngle = 90f;
-    [SerializeField] private float speed;
-    [SerializeField] private float tResetIn;
-    [SerializeField] private float tWaitBeforeResetFor = 5f;
     [SerializeField] private int rayCount = 100;
     [SerializeField] private bool isDetected;
-    [SerializeField] private bool isReset = true;
+    
+    
     [SerializeField] private bool isFacingRight = false;
-    [SerializeField] private bool wasFacingRightBeforeDetect;
-    [SerializeField] private bool isTurning;
-    [SerializeField] private bool wasTurningBeforeDetect;
-    [SerializeField] private bool isReseting;
-
     private SecurityParent parent;
-    private Transform player;
     private List<GameObject> inLightFieldOfViews;
     private Mesh mesh;
-    private Quaternion resetReferenceRotation;
 
-    private float tResetTime;
     private bool isPlayerDetectedInLight;
     private bool isPlayerDetectedNormal;
 
     public bool IsDetected { get { return isDetected; } }
-    public bool IsTurning { get { return isTurning; } }
-    public bool IsReset { get { return isReset; } }
-
+    
     void Start()
     {
         mesh = new Mesh();
         GetComponent<MeshFilter>().mesh = mesh;
         inLightFieldOfViews = new List<GameObject>();
-        player = FindObjectOfType<NinjaStatesAnimationSound>().transform;
         parent = GetComponentInParent<SecurityParent>();
-        isReset = true;
-        wasFacingRightBeforeDetect = false;
     }
 
     private void LateUpdate() 
@@ -57,47 +40,9 @@ public class FieldOfView : MonoBehaviour
         UpdateInLightFOV();
         UpdateNormalFOV();
         isDetected = isPlayerDetectedInLight || isPlayerDetectedNormal;
-        HandleLookDirection();
     }
 
-    private void HandleLookDirection()
-    {
-        if (isDetected && !isTurning)
-        {
-            if (isReset)
-            {
-                isReset = false;
-                wasFacingRightBeforeDetect = isFacingRight;
-                resetReferenceRotation = transform.rotation;
-            }
-            // Look at player
-            Vector2 playerDirection = (player.position - transform.position);
-            playerDirection = Vector3.Normalize(
-                isFacingRight ? playerDirection : -playerDirection
-            );
-            transform.right = MyMath.InterpolateFunctions.Interpolate((Vector2)transform.right, playerDirection, speed * Time.deltaTime);
-
-            // Turn around if necessary
-            if (transform.GetComponentInParent<SecurityWalkBackAndForth>() != null)
-            {
-                float facingDirecton = transform.right.x;
-                if (facingDirecton < 0f)
-                {
-                    parent.transform.localScale = new Vector3(
-                        -parent.transform.localScale.x,
-                        parent.transform.localScale.y,
-                        parent.transform.localScale.z
-                    );
-                }
-            }
-        }
-        else if (!isDetected && !isReset && !isReseting)
-        {
-            Debug.Log("Reset Look Dir");
-            StartCoroutine(ResetLookDirection());
-        }
-    }
-
+    
     private void UpdateInLightFOV()
     {
         bool currentlyDetected = false;
@@ -368,101 +313,4 @@ public class FieldOfView : MonoBehaviour
         return result;
     }
 
-    public IEnumerator TurnAroundForSecondsAfterSeconds(float turnFor, float stayFor)
-    {
-        isTurning = true;
-        float tStayTime = 0f;
-        yield return new WaitUntil(() => {
-            tStayTime += Time.deltaTime;
-            return tStayTime >= stayFor || isDetected;
-        });
-
-        if (isDetected)
-        {
-            isTurning = false;
-            wasTurningBeforeDetect = true;
-        } 
-        else
-        {
-            float tTurnTime = 0f;
-            bool facingRight = parent.transform.localScale.x > 0f;
-            float tTurnFor = turnFor / 2f;
-            Quaternion fromRotation = transform.rotation;
-            Quaternion toRotation = facingRight ? Quaternion.Euler(0f, 90f, 0f) : Quaternion.Euler(0f, -90f, 0f);
-
-            yield return new WaitUntil(() =>
-            {
-                tTurnTime += Time.deltaTime;
-                transform.rotation = MyMath.InterpolateFunctions.Interpolate(fromRotation, toRotation, tTurnTime / tTurnFor);
-                return tTurnTime >= tTurnFor || isDetected;
-            });
-            if (isDetected)
-            {
-                wasTurningBeforeDetect = true;
-                yield return new WaitUntil(() =>
-                {
-                    tTurnTime -= Time.deltaTime;
-                    transform.rotation = MyMath.InterpolateFunctions.Interpolate(fromRotation, toRotation, tTurnTime / tTurnFor);
-                    return tTurnTime <= 0f;
-                });
-                transform.rotation = fromRotation;
-            } 
-            else
-            {
-                transform.rotation = toRotation;
-                toRotation = facingRight ? Quaternion.Euler(0f, -90f, 0f) : Quaternion.Euler(0f, 90f, 0f);
-                parent.transform.localScale = new Vector3(
-                    -parent.transform.localScale.x,
-                    parent.transform.localScale.y,
-                    parent.transform.localScale.z
-                );
-                yield return new WaitUntil(() =>
-                {
-                    tTurnTime -= isDetected ? 2f * Time.deltaTime : Time.deltaTime;
-                    transform.rotation = MyMath.InterpolateFunctions.Interpolate(fromRotation, toRotation, tTurnTime / tTurnFor);
-                    return tTurnTime <= 0f;
-                });
-                transform.rotation = fromRotation;
-            }
-            isTurning = false;
-        }
-    }
-
-
-    private IEnumerator ResetLookDirection()
-    {
-        isReseting = true;
-        float tWaitBeforeResetTime = 0f;
-        yield return new WaitUntil(() => {
-            tWaitBeforeResetTime += Time.deltaTime;
-            return tWaitBeforeResetTime >= tWaitBeforeResetFor || isDetected;
-        });
-        if (!isDetected)
-        {
-            tResetTime = 0f;
-            yield return new WaitUntil(() =>
-            {
-                tResetTime += Time.deltaTime;
-                transform.rotation = MyMath.InterpolateFunctions.Interpolate(transform.rotation, resetReferenceRotation, tResetTime / tResetIn);
-                return tResetTime >= tResetIn || isDetected;
-            });
-
-            if (!isDetected)
-            {
-                SecurityWalkBackAndForth patrol = GetComponentInParent<SecurityWalkBackAndForth>();
-                if (patrol != null 
-                    && (wasTurningBeforeDetect == (wasFacingRightBeforeDetect == isFacingRight))
-                ) {
-                    StartCoroutine(TurnAroundForSecondsAfterSeconds(patrol.TurnForSeconds, patrol.StayForSeconds));
-                }
-                yield return new WaitUntil(() => !isTurning || isDetected);
-                if (!isDetected)
-                {
-                    wasTurningBeforeDetect = false;
-                    isReset = true;
-                }
-            }
-        }
-        isReseting = false;
-    }
 }

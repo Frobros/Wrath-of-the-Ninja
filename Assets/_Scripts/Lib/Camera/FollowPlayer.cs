@@ -13,7 +13,7 @@ public class FollowPlayer : MonoBehaviour
         velocity = 0.0F;
     private bool onStage;
 
-    void LateUpdate()
+    void FixedUpdate()
     {
         if (onStage) {
             if((adjustedBounds == null || player == null)

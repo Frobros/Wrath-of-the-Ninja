@@ -14,7 +14,7 @@ public class InLightFieldOfView : MonoBehaviour
 
     internal bool IsFacingRight { set { isFacingRight = value; } }
 
-    private void Update()
+    private void LateUpdate()
     {
         isPresent = false;
         CreateMesh();

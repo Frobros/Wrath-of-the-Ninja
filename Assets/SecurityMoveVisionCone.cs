@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 
-
 public class SecurityMoveVisionCone : MonoBehaviour
 {
     [SerializeField] private float speed;
@@ -9,19 +8,19 @@ public class SecurityMoveVisionCone : MonoBehaviour
     private float tResetTime;
     private Quaternion reference;
     private Transform player;
-    private FieldOfView fov;
+    private SecurityLookAtPlayer lookAtPlayer;
 
     public bool IsFacingRight { get { return IsPatrol ? transform.parent.localScale.x > 0f : transform.localScale.x > 0f; } }
     public bool IsPatrol { get { return transform.GetComponentInParent<SecurityWalkBackAndForth>() != null; } }
     void Start()
     {
         player = FindObjectOfType<NinjaStatesAnimationSound>().transform;
-        fov = GetComponent<FieldOfView>();
+        lookAtPlayer = GetComponent<SecurityLookAtPlayer>();
     }
 
     void Update()
     {
-        if (fov.IsDetected && !fov.IsTurning)
+        if (lookAtPlayer.IsDetected && !lookAtPlayer.IsTurning)
         {
             if (isReset)
             {

@@ -1,112 +1,104 @@
-﻿using UnityEngine;
+﻿using MyMath;
+using System.Collections;
+using UnityEngine;
 
-public class SecurityWalkBackAndForth : SecurityParent
+public class SecurityWalkBackAndForth : MonoBehaviour
 {
     [SerializeField] private GameObject groundCheck;
+    [SerializeField] private InterpolateType interpolateType;
     [SerializeField] private float startXPosition;
     [SerializeField] private float endXPosition;
     [SerializeField] private float tMoveFor;
     [SerializeField] private float tStayFor;
-    [SerializeField] private float tTurnFor;
-    [SerializeField] private MyMath.InterpolateType interpolateType;
+    [SerializeField] private float tMoveTime = 0f;
+    [SerializeField] private float tStayTime = 0f;
+    [SerializeField] private bool shallWalkForth = true;
+    [SerializeField] private bool isWalking = false;
+    [SerializeField] private bool isStaying = true;
+    [SerializeField] private bool isInWalkingRoutine = false;
 
-    private FieldOfView fov;
-    private Animator animator;
+    private Patrol parent;
     private Rigidbody2D rb;
-    private float tMoveAt = 0f;
-    private float tStayAndTurnTime = 0f;
-    private bool isWalkingForth = true;
-    private bool isStaying = false;
+    private SecurityLookAtPlayer lookAtPlayer;
 
-    internal float StayForSeconds { get { return tStayFor; } }
-    internal float TurnForSeconds { get { return tTurnFor; } }
+    public bool IsStaying { get { return isStaying; } }
+
     private void Start()
     {
-        fov = GetComponentInChildren<FieldOfView>();
+        lookAtPlayer = GetComponentInChildren<SecurityLookAtPlayer>();
         rb = GetComponent<Rigidbody2D>();
         transform.position = new Vector2(startXPosition, transform.position.y);
-        animator = GetComponent<Animator>();
+        parent = GetComponent<Patrol>();
     }
 
     private void Update()
     {
-        if (fov.IsReset)
+        if (!lookAtPlayer.IsBusy && !isInWalkingRoutine)
         {
-            IncrementTime();
-            HandleMovement();
+            if (shallWalkForth) StartCoroutine(MoveFromTo(startXPosition, endXPosition));
+            else StartCoroutine(MoveFromTo(endXPosition, startXPosition));
         }
-        HandleAnimation();
     }
 
-    private void IncrementTime()
+    private IEnumerator MoveFromTo(float startPosition, float endPosition)
     {
-        if (!isStaying && (isWalkingForth && tMoveAt > tMoveFor || !isWalkingForth && tMoveAt < 0f))
+        Debug.Log("START WALK ROUTINE!");
+        isInWalkingRoutine = true;
+        if (!isWalking)
         {
+            tMoveTime = 0f;
+            tStayTime = 0f;
+            isWalking = true;
+        }
+        if (tMoveTime < tMoveFor)
+        {
+            isStaying = false;
+            yield return new WaitUntil(() =>
+            {
+                tMoveTime += Time.deltaTime;
+                Vector2 targetPosition = new Vector2(
+                    InterpolateFunctions.Interpolate(startPosition, endPosition, tMoveTime / tMoveFor, interpolateType),
+                    transform.position.y
+                );
+                rb.MovePosition(targetPosition);
+                return tMoveTime >= tMoveFor || lookAtPlayer.IsDetected;
+            });
             isStaying = true;
-            StartCoroutine(fov.TurnAroundForSecondsAfterSeconds(tTurnFor, tStayFor));
         }
-        else if (isStaying)
+
+        if (lookAtPlayer.IsDetected)
         {
-            if (tStayAndTurnTime < (tStayFor + tTurnFor))
-            {
-                tStayAndTurnTime += Time.deltaTime;
-            } else
-            {
-                tStayAndTurnTime = 0f;
-                isStaying = false;
-                isWalkingForth = !isWalkingForth;
-            }
+            isInWalkingRoutine = false;
+            Debug.Log("INTERRUPT WALK ROUTINE 1!");
+            yield break;
         }
-        else if (isWalkingForth)
+        if (tStayTime < tStayFor)
         {
-            tMoveAt += Time.deltaTime;
-        } 
-        else {
-            tMoveAt -= Time.deltaTime;
+            yield return new WaitUntil(() => {
+                tStayTime += Time.deltaTime;
+                return tStayTime >= tStayFor || lookAtPlayer.IsDetected;
+            });
         }
-    }
 
+        if (lookAtPlayer.IsDetected)
+        {
+            isInWalkingRoutine = false;
+            Debug.Log("INTERRUPT WALK ROUTINE 2!");
+            yield break;
+        }
 
-    private void HandleMovement()
-    {
-        float time = tMoveFor != 0f ? tMoveAt / tMoveFor : 0;
-        Vector2 targetPosition = new Vector2(
-            MyMath.InterpolateFunctions.Interpolate(startXPosition, endXPosition, time, interpolateType),
-            transform.position.y
-        );
-        rb.MovePosition(targetPosition);
-    }
-
-    private void HandleAnimation()
-    {
-        animator.SetBool("staying", isStaying);
-        transform.localScale = new Vector3(
-            ShallFaceRight()
-                ? Mathf.Abs(transform.localScale.x)
-                : -Mathf.Abs(transform.localScale.x),
-            transform.localScale.y,
-            transform.localScale.z
-        );
-    }
-    private bool ShallFaceRight()
-    {
-        return startXPosition < endXPosition && transform.localScale.x > 0f
-            || startXPosition > endXPosition && transform.localScale.x < 0f;
+        shallWalkForth = !shallWalkForth;
+        isWalking = false;
+        isInWalkingRoutine = false;
+        Debug.Log("END WALK ROUTINE!");
+        StartCoroutine(lookAtPlayer.TurnAround());
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.collider.tag == "Player")
         {
-            float facingDirection = collision.transform.position.x - transform.position.x > 0f
-                ? Mathf.Abs(transform.localScale.x)
-                : -Mathf.Abs(transform.localScale.x);
-
-            transform.localScale = new Vector3(
-                facingDirection,
-                transform.localScale.y,
-                transform.localScale.z
-            );
+            parent.FaceRight((collision.transform.position.x - transform.position.x) > 0f);
         }
     }
 }
