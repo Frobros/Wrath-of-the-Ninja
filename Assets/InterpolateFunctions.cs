@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 /*
  * Credits for provision of interpolate functions go to Andrey Sitnik and Ivan Solovev:
@@ -49,7 +50,7 @@ namespace MyMath
 			return Mathf.LerpUnclamped(from, to, Ease(time, type));
 		}
 
-		public static Vector2 Interpolate(Vector2 from, Vector2 to, float time, InterpolateType type = InterpolateType.Lerp)
+        public static Vector2 Interpolate(Vector2 from, Vector2 to, float time, InterpolateType type = InterpolateType.Lerp)
 		{
 			return Vector2.LerpUnclamped(from, to, Ease(time, type));
 		}
@@ -142,7 +143,12 @@ namespace MyMath
 			return Mathf.Sin((time * Mathf.PI) / 2f);
 		}
 
-		private static float easeInOutSine(float time)
+        internal static Quaternion Interpolate(Quaternion from, Quaternion to, float delta, object interpolateType)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static float easeInOutSine(float time)
 		{
 			return -(Mathf.Cos(Mathf.PI * time) - 1f) / 2f;
 		}

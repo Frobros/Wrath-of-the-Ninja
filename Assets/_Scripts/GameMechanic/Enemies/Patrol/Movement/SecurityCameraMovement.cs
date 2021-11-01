@@ -1,126 +1,68 @@
-﻿using System;
+﻿using MyMath;
 using System.Collections;
 using UnityEngine;
 
-public class SecurityCameraMovement : MonoBehaviour {
-    public float fStayFor;
-    public float fRotateFor;
+public class SecurityCameraMovement : SecurityParent {
+    [SerializeField] private InterpolateType interpolateType;
+    [SerializeField] private float tStayFor;
+    [SerializeField] private float tRotateFor;
+    [SerializeField] float startRotationEulerZ, endRotationEulerZ;
+    private float tStayTime;
+    private float tRotateTime;
 
-    private float fStayUntil;
-    private float fRotateUntil;
-
-    public Vector3 startRotationEuler, endRotationEuler;
+    private FieldOfView fov;
     private Quaternion startRotation, endRotation;
-    private bool rotateBackwards = true;
-    private bool staying;
-
-    public bool detected = false;
-    private bool wasDetected = false;
-    private bool backToNormal = true;
-    private bool rotationInterrupted = false;
-    private Quaternion formerRotation;
+    private bool rotateForward = true;
+    private bool isMoving;
+    private bool wasInterrupted;
 
     private void Start()
     {
-        startRotation = Quaternion.Euler(startRotationEuler);
-        endRotation = Quaternion.Euler(endRotationEuler);
+        startRotation = Quaternion.Euler(0, 0, startRotationEulerZ);
+        endRotation = Quaternion.Euler(0, 0, endRotationEulerZ);
         transform.rotation = startRotation;
+        fov = GetComponentInChildren<FieldOfView>();
     }
 
     void FixedUpdate() {
-        detected = GetComponentInChildren<FieldOfView>().detected;
-        if (detected)
-            HandleDetectionRotation();
-        else
-            HandleStandardRotation();
-    }
-
-    private void HandleDetectionRotation()
-    {
-        if (!wasDetected)
+        if (fov.IsReset)
         {
-            rotationInterrupted = true;
-        }
-
-        Vector2 up = Vector2.Perpendicular(FindObjectOfType<NinjaMove>().transform.position - transform.position);
-        Quaternion targetRotation = Quaternion.LookRotation(Vector3.forward, up);
-        transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, 0.25f);
-
-        wasDetected = true;
-        backToNormal = false;
-        fStayUntil += Time.deltaTime;
-        fRotateUntil += Time.deltaTime;
-    }
-
-    private void HandleStandardRotation()
-    {
-        if (wasDetected)
-        {
-            wasDetected = false;
-            formerRotation = RotationCloserToCurrent(startRotation, endRotation);
-            rotationInterrupted = true;
-            StartCoroutine(RotateFromToInSeconds(transform.rotation, formerRotation, 1f, 0.5f));
-        } else if (!backToNormal)    
-        {
-            fStayUntil += Time.deltaTime;
-            fRotateUntil += Time.deltaTime;
-        }
-        else
-        {
-            if (!staying && fRotateUntil < Time.time)
+            if (!isMoving)
             {
-                fStayUntil = Time.time + fStayFor;
-                staying = true;
-            } 
-            else if (staying && fStayUntil < Time.time)
-            {
-                rotationInterrupted = true;
-                staying = false;
-                rotateBackwards = !rotateBackwards;
-                fRotateUntil = Time.time + fRotateFor;
-
-                if (rotateBackwards) StartCoroutine(RotateFromToInSeconds(endRotation, startRotation, fRotateFor, 0f));
-                else StartCoroutine(RotateFromToInSeconds(startRotation, endRotation, fRotateFor, 0f));
+                if (rotateForward) StartCoroutine(RotateFromToInSeconds(startRotation, endRotation));
+                else StartCoroutine(RotateFromToInSeconds(endRotation, startRotation));
             }
         }
     }
 
-    private Quaternion RotationCloserToCurrent(Quaternion startRotation, Quaternion endRotation)
+    private IEnumerator RotateFromToInSeconds(Quaternion from, Quaternion to)
     {
-        Vector3 currentLookVector = transform.rotation * Vector3.right;
-        Vector3 startLookVector = startRotation * Vector3.right;
-        Vector3 endLookVector = endRotation * Vector3.right;
-
-        float startDot = Vector3.Dot(currentLookVector, startLookVector);
-        float endDot = Vector3.Dot(currentLookVector, endLookVector);
-
-        if (startDot > endDot)
+        isMoving = true;
+        if (!wasInterrupted)
+            tRotateTime = 0f;
+        yield return new WaitUntil(() =>
         {
-            rotateBackwards = true;
-            return startRotation;
-        }
-        else
+            tRotateTime += Time.deltaTime;
+            transform.rotation = MyMath.InterpolateFunctions.Interpolate(from, to, tRotateTime / tRotateFor, interpolateType);
+            return tRotateTime >= tRotateFor || fov.IsDetected;
+        });
+        if (!fov.IsDetected)
         {
-            rotateBackwards = false;
-            return endRotation;
-        }
+            tStayTime = 0f;
+            yield return new WaitUntil(() =>
+            {
+                tStayTime += Time.deltaTime;
+                return tStayTime >= tStayFor || fov.IsDetected;
+            });
 
-    }
-
-    private IEnumerator RotateFromToInSeconds(Quaternion from, Quaternion to, float inSeconds, float afterSeconds)
-    {
-        yield return new WaitForSeconds(afterSeconds);
-        rotationInterrupted = false;
-        float delta;
-        float rotateUntil = Time.time + inSeconds;
-        bool rotating = true;
-        while (rotating && !rotationInterrupted)
-        {
-            delta = (inSeconds - (rotateUntil - Time.time)) / inSeconds;
-            transform.rotation = Quaternion.Lerp(from, to, delta);
-            rotating = Time.time < rotateUntil;
-            yield return null;
+            if (!fov.IsDetected)
+            {
+                rotateForward = !rotateForward;
+                wasInterrupted = false;
+            }
+            else wasInterrupted = true;
         }
-        backToNormal = true;
+        else wasInterrupted = true;
+        isMoving = false;
     }
 }

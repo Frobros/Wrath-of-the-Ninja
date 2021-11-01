@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class InLightFieldOfView : MonoBehaviour
@@ -11,7 +10,9 @@ public class InLightFieldOfView : MonoBehaviour
     List<Vector3> vertices;
     int[] triangles;
     Mesh mesh;
-    private bool facingRight;
+    private bool isFacingRight;
+
+    internal bool IsFacingRight { set { isFacingRight = value; } }
 
     private void Update()
     {
@@ -50,7 +51,7 @@ public class InLightFieldOfView : MonoBehaviour
             for (int vertexIndex = 0; vertexIndex <= vertices.Count - 4; vertexIndex += 2)
             {
                 traingleIndex = 3 * vertexIndex;
-                if (facingRight)
+                if (isFacingRight)
                 {
                     triangles[traingleIndex] = vertexIndex;
                     triangles[traingleIndex + 1] = vertexIndex + 2;
@@ -81,8 +82,4 @@ public class InLightFieldOfView : MonoBehaviour
         }
     }
 
-    internal void setFacingRight(bool facingRight)
-    {
-        this.facingRight = facingRight;
-    }
 }

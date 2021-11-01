@@ -6,11 +6,12 @@ using UnityEngine.Rendering;
 public class Parallex : MonoBehaviour
 {
     private float length, startpos;
-    public GameObject cam;
+    public Transform cam;
     public float parallexEffect;
 
     void Start()
     {
+        cam = Camera.current.transform;
         startpos = transform.position.x;
         length = GetComponent<SpriteRenderer>().bounds.size.x;
         
@@ -19,7 +20,7 @@ public class Parallex : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        float dist = (cam.transform.position.x * parallexEffect);
+        float dist = (cam.position.x * parallexEffect);
         transform.position = new Vector3(startpos + dist, transform.position.y, transform.position.z);
     }
 }

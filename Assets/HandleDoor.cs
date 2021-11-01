@@ -61,9 +61,9 @@ public class HandleDoor : MonoBehaviour
         bool currentlyDetected = false;
         foreach (FieldOfView fov in fovs)
         {
-            if (fov.detected)
+            if (fov.IsDetected)
             {
-                currentlyDetected = fov.detected;
+                currentlyDetected = fov.IsDetected;
             }
         }
         float halfWayThere;

@@ -1,29 +1,25 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class InterpolateMaterial : MonoBehaviour
 {
-    private FieldOfView fieldOfView;
-    private MeshRenderer renderer;
-    public Material material1;
-    public Material material2;
-    public bool canBeShot;
-
-    bool interpolating;
-    public float interpolateIn = 3f;
-    private float interpolatingFor = 0f;
-    public float lerp;
+    [SerializeField] private Material material1;
+    [SerializeField] private Material material2;
+    [SerializeField] private bool canBeShot;
+    [SerializeField] private float interpolateIn = 3f;
+    [SerializeField] private float lerp;
+    
+    private FieldOfView fov;
+    private MeshRenderer meshRenderer;
 
     void Start()
     {
-        fieldOfView = GetComponentInParent<FieldOfView>();
-        renderer = GetComponent<MeshRenderer>();
+        fov = GetComponentInParent<FieldOfView>();
+        meshRenderer = GetComponent<MeshRenderer>();
     }
 
     void Update()
     {
-        if (fieldOfView.detected)
+        if (fov.IsDetected)
         {
             lerp = Mathf.Min(lerp + Time.deltaTime / interpolateIn, 1f);
         } 
@@ -31,7 +27,7 @@ public class InterpolateMaterial : MonoBehaviour
         {
             lerp = Mathf.Max(lerp - Time.deltaTime / (0.5f * interpolateIn), 0f);
         }
-        renderer.material.Lerp(material1, material2, lerp);
+        meshRenderer.material.Lerp(material1, material2, lerp);
 
         if (lerp == 1f && canBeShot)
         {

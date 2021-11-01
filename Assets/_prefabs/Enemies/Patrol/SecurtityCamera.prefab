@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 4365224341597844}
   - component: {fileID: 1090977815}
   - component: {fileID: 114399077349710966}
-  - component: {fileID: 1730250437}
   m_Layer: 10
   m_Name: SecurtityCamera
   m_TagString: security
@@ -96,35 +95,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52c3f8c01b790d54e92193f7bdfc411d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fStayFor: 2
-  fRotateFor: 2
-  startRotationEuler: {x: 0, y: 0, z: 10}
-  endRotationEuler: {x: 0, y: 0, z: 300}
-  detected: 0
---- !u!114 &1730250437
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1243987543144334}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8c28f1a9adcfc2a4cbe599831c3519b8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &2141790583
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4853409149808340206}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6991012c8bd427740a6b36456a189cf9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  interpolateType: 3
+  tStayFor: 1
+  tRotateFor: 1
+  startRotationEulerZ: 314
+  endRotationEulerZ: 0
 --- !u!1001 &4018716716762711098
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -132,6 +107,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 4365224341597844}
     m_Modifications:
+    - target: {fileID: 8403607398314682576, guid: dbbbd2eb6dc824e4e918c6dd798dbb07,
+        type: 3}
+      propertyPath: speed
+      value: 60
+      objectReference: {fileID: 0}
     - target: {fileID: 8403607398314682576, guid: dbbbd2eb6dc824e4e918c6dd798dbb07,
         type: 3}
       propertyPath: fovAngle
@@ -144,13 +124,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8403607398314682576, guid: dbbbd2eb6dc824e4e918c6dd798dbb07,
         type: 3}
+      propertyPath: tResetIn
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8403607398314682576, guid: dbbbd2eb6dc824e4e918c6dd798dbb07,
+        type: 3}
       propertyPath: normalViewDistance
-      value: 3
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 8403607398314682576, guid: dbbbd2eb6dc824e4e918c6dd798dbb07,
         type: 3}
       propertyPath: inLightViewDistance
       value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 8403607398314682576, guid: dbbbd2eb6dc824e4e918c6dd798dbb07,
+        type: 3}
+      propertyPath: tWaitBeforeResetFor
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8403607398314682578, guid: dbbbd2eb6dc824e4e918c6dd798dbb07,
         type: 3}
@@ -222,14 +212,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 8403607398314682577, guid: dbbbd2eb6dc824e4e918c6dd798dbb07, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: dbbbd2eb6dc824e4e918c6dd798dbb07, type: 3}
---- !u!1 &4853409149808340206 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8403607398314682580, guid: dbbbd2eb6dc824e4e918c6dd798dbb07,
-    type: 3}
-  m_PrefabInstance: {fileID: 4018716716762711098}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &4853409149808340207 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8403607398314682581, guid: dbbbd2eb6dc824e4e918c6dd798dbb07,

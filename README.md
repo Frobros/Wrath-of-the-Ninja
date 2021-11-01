@@ -1,13 +1,11 @@
 # Wrath-of-the-Ninja
-Ninja Stealth Platformer with Unity
+A 2D ninja stealth platformer.
 
 ## Setup Project
 
-#### Missing Packages
+The project was updated to Unity 2019.4.16f1 and requires the following packages installed from the Unity package manager
+
+### Relevant Packages
 - TextMeshPro
 - LightWeight Render Pipeline
 - 2D Pixel Perfect
-- 2D 
-
-#### Missing Asset
-- Github

@@ -1,44 +1,101 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+// [ExecuteInEditMode]
 public class FieldOfView : MonoBehaviour
 {
-    public GameObject prefabInLightFieldOfView;
-    private Mesh mesh;
-    
-    public LayerMask whatBlocksRay;
-    public LayerMask whatIsSuspicious;
-    public LayerMask whatIsLight;
+    [SerializeField] private GameObject prefabInLightFieldOfView;
+    [SerializeField] private LayerMask whatBlocksRay;
+    [SerializeField] private LayerMask whatIsSuspicious;
+    [SerializeField] private LayerMask whatIsLight;
+    [SerializeField] private float normalViewDistance = 2f;
+    [SerializeField] private float inLightViewDistance = 5f;
+    [SerializeField] private float fovAngle = 90f;
+    [SerializeField] private float speed;
+    [SerializeField] private float tResetIn;
+    [SerializeField] private float tWaitBeforeResetFor = 5f;
+    [SerializeField] private int rayCount = 100;
+    [SerializeField] private bool isDetected;
+    [SerializeField] private bool isReset = true;
+    [SerializeField] private bool isFacingRight = false;
+    [SerializeField] private bool wasFacingRightBeforeDetect;
+    [SerializeField] private bool isTurning;
+    [SerializeField] private bool wasTurningBeforeDetect;
+    [SerializeField] private bool isReseting;
 
-
-    private bool facingRight = false;
-    
-    public float normalViewDistance = 2f;
-    public float inLightViewDistance = 5f;
-
-    public float fovAngle = 90f;
-    public int rayCount = 100;
+    private SecurityParent parent;
+    private Transform player;
     private List<GameObject> inLightFieldOfViews;
-    public bool detected;
-    private bool detectedInlight,
-        detectedNormal;
+    private Mesh mesh;
+    private Quaternion resetReferenceRotation;
+
+    private float tResetTime;
+    private bool isPlayerDetectedInLight;
+    private bool isPlayerDetectedNormal;
+
+    public bool IsDetected { get { return isDetected; } }
+    public bool IsTurning { get { return isTurning; } }
+    public bool IsReset { get { return isReset; } }
 
     void Start()
     {
         mesh = new Mesh();
         GetComponent<MeshFilter>().mesh = mesh;
         inLightFieldOfViews = new List<GameObject>();
-        // Time.timeScale = 0.2f;
+        player = FindObjectOfType<NinjaStatesAnimationSound>().transform;
+        parent = GetComponentInParent<SecurityParent>();
+        isReset = true;
+        wasFacingRightBeforeDetect = false;
     }
 
     private void LateUpdate() 
     {
-        facingRight = Mathf.Abs(transform.parent.eulerAngles.y) > 0f;
+        isFacingRight = parent.transform.localScale.x > 0f;
         UpdateInLightFOV();
         UpdateNormalFOV();
-        detected = detectedInlight || detectedNormal;
+        isDetected = isPlayerDetectedInLight || isPlayerDetectedNormal;
+        HandleLookDirection();
+    }
+
+    private void HandleLookDirection()
+    {
+        if (isDetected && !isTurning)
+        {
+            if (isReset)
+            {
+                isReset = false;
+                wasFacingRightBeforeDetect = isFacingRight;
+                resetReferenceRotation = transform.rotation;
+            }
+            // Look at player
+            Vector2 playerDirection = (player.position - transform.position);
+            playerDirection = Vector3.Normalize(
+                isFacingRight ? playerDirection : -playerDirection
+            );
+            transform.right = MyMath.InterpolateFunctions.Interpolate((Vector2)transform.right, playerDirection, speed * Time.deltaTime);
+
+            // Turn around if necessary
+            if (transform.GetComponentInParent<SecurityWalkBackAndForth>() != null)
+            {
+                float facingDirecton = transform.right.x;
+                if (facingDirecton < 0f)
+                {
+                    parent.transform.localScale = new Vector3(
+                        -parent.transform.localScale.x,
+                        parent.transform.localScale.y,
+                        parent.transform.localScale.z
+                    );
+                }
+            }
+        }
+        else if (!isDetected && !isReset && !isReseting)
+        {
+            Debug.Log("Reset Look Dir");
+            StartCoroutine(ResetLookDirection());
+        }
     }
 
     private void UpdateInLightFOV()
@@ -46,7 +103,7 @@ public class FieldOfView : MonoBehaviour
         bool currentlyDetected = false;
 
         inLightFieldOfViews.RemoveAll(item => item == null);
-        inLightFieldOfViews.ForEach(item => item.GetComponent<InLightFieldOfView>().setFacingRight(facingRight));
+        inLightFieldOfViews.ForEach(item => item.GetComponent<InLightFieldOfView>().IsFacingRight = isFacingRight);
         Vector2 origin = Vector2.zero;
         float currentAngle = fovAngle / 2f;
         float angleIncrease = fovAngle / rayCount;
@@ -59,7 +116,7 @@ public class FieldOfView : MonoBehaviour
         for (int i = 0; i <= rayCount; i++)
         {
             Vector3 vertex = SimpleMath.VectorFromAngle(currentAngle);
-            Vector2 projectedRayDirection = transform.TransformDirection(Project3DPointOntoXYPlane(vertex));
+            Vector2 projectedRayDirection = transform.TransformDirection(ProjectVertexOn2DPlane(vertex));
             float inLightViewRayLength = inLightViewDistance * projectedRayDirection.magnitude;
             Vector2 endOfInLightRay = (Vector2)transform.position + inLightViewDistance * projectedRayDirection;
             Vector2 endOfNormalRay = (Vector2)transform.position + normalViewDistance * projectedRayDirection;
@@ -131,7 +188,6 @@ public class FieldOfView : MonoBehaviour
                     // light is visible
                     else  {
                         RaycastHit2D exitLightArea = Array.Find<RaycastHit2D>(inverseExtendedRayHitsLights, area => enterLightArea.collider == area.collider);
-
                         Vector2 startOfSightInLight = enterLightArea.point;
                         Vector2 endOfSightInLight = endOfInLightRay;
 
@@ -157,9 +213,8 @@ public class FieldOfView : MonoBehaviour
                             endOfSightInLight = endOfNormalRay;
                         }
 
-                        Vector3 vertexStart = InverseProject3DPointOntoXYPlane(vertex, startOfSightInLight);
-                        Vector3 vertexEnd = InverseProject3DPointOntoXYPlane(vertex, endOfSightInLight);
-
+                        Vector3 vertexStart = transform.InverseTransformPoint(InverseProjectPointTo3DSpace(startOfSightInLight));
+                        Vector3 vertexEnd = transform.InverseTransformPoint(InverseProjectPointTo3DSpace(endOfSightInLight));
 
                         /* if this light was blocked before, create a new InLightFOV,
                          * take the number from the dictionary and set it as piece Id
@@ -206,7 +261,7 @@ public class FieldOfView : MonoBehaviour
             }
         }
 
-        detectedInlight = currentlyDetected;
+        isPlayerDetectedInLight = currentlyDetected;
     }
 
     private void UpdateNormalFOV()
@@ -230,7 +285,7 @@ public class FieldOfView : MonoBehaviour
         for (int i = 0; i <= rayCount; i++)
         {
             Vector3 vertex = SimpleMath.VectorFromAngle(currentAngle);
-            Vector2 projectedRayDirection = transform.TransformDirection(Project3DPointOntoXYPlane(vertex));
+            Vector2 projectedRayDirection = transform.TransformDirection(ProjectVertexOn2DPlane(vertex));
             float normalViewRayLength = normalViewDistance * projectedRayDirection.magnitude;
 
             // world space
@@ -249,7 +304,7 @@ public class FieldOfView : MonoBehaviour
 
             if (raycastHit2D.collider)
             {
-                vertex = InverseProject3DPointOntoXYPlane(vertex, raycastHit2D.point);
+                vertex = transform.InverseTransformPoint(InverseProjectPointTo3DSpace(raycastHit2D.point));
             }
             else
             {
@@ -261,7 +316,7 @@ public class FieldOfView : MonoBehaviour
             {
                 triangles[triangleIndex + 0] = 0;
 
-                if (facingRight)
+                if (isFacingRight)
                 {
                     triangles[triangleIndex + 1] = vertexIndex - 1;
                     triangles[triangleIndex + 2] = vertexIndex;
@@ -281,7 +336,6 @@ public class FieldOfView : MonoBehaviour
                 if (!raycastHit2D.collider
                     || (raycastHit2D.collider && SimpleMath.PointACloserToPointC(playerDetected.point, raycastHit2D.point, transform.position)))
                 {
-                    Debug.Log(playerDetected.collider);
                     currentlyDetected = playerDetected.collider.GetComponent<NinjaStatesAnimationSound>().isDetectableFrom(projectedRayDirection);
                 }
             }
@@ -292,27 +346,123 @@ public class FieldOfView : MonoBehaviour
         mesh.vertices = vertices;
         mesh.uv = uv;
         mesh.triangles = triangles;
-        detectedNormal = currentlyDetected;
+        isPlayerDetectedNormal = currentlyDetected;
+    }
+
+    private Vector3 ProjectVertexOn2DPlane(Vector3 vertex)
+    {
+        return (Vector2)vertex;
+    }
+
+    public Vector3 InverseProjectPointTo3DSpace(Vector3 point)
+    {
+        Vector3 upLocal = transform.up;
+        Vector3 rightLocal = transform.right;
+        Vector3 forwardWorld = Vector3.forward;
+        point -= transform.position;
+        float pointStuff = (point.x * rightLocal.y - point.y * rightLocal.x) * (upLocal.x * rightLocal.z - upLocal.z * rightLocal.x)
+            - (point.x * rightLocal.z - point.z * rightLocal.x) * (upLocal.x * rightLocal.y - upLocal.y * rightLocal.x);
+        float directionStuff = -(forwardWorld.z * rightLocal.x) * (upLocal.x * rightLocal.y - upLocal.y * rightLocal.x);
+        float c = pointStuff / directionStuff;
+        Vector3 result = transform.position + point + c * forwardWorld;
+        return result;
+    }
+
+    public IEnumerator TurnAroundForSecondsAfterSeconds(float turnFor, float stayFor)
+    {
+        isTurning = true;
+        float tStayTime = 0f;
+        yield return new WaitUntil(() => {
+            tStayTime += Time.deltaTime;
+            return tStayTime >= stayFor || isDetected;
+        });
+
+        if (isDetected)
+        {
+            isTurning = false;
+            wasTurningBeforeDetect = true;
+        } 
+        else
+        {
+            float tTurnTime = 0f;
+            bool facingRight = parent.transform.localScale.x > 0f;
+            float tTurnFor = turnFor / 2f;
+            Quaternion fromRotation = transform.rotation;
+            Quaternion toRotation = facingRight ? Quaternion.Euler(0f, 90f, 0f) : Quaternion.Euler(0f, -90f, 0f);
+
+            yield return new WaitUntil(() =>
+            {
+                tTurnTime += Time.deltaTime;
+                transform.rotation = MyMath.InterpolateFunctions.Interpolate(fromRotation, toRotation, tTurnTime / tTurnFor);
+                return tTurnTime >= tTurnFor || isDetected;
+            });
+            if (isDetected)
+            {
+                wasTurningBeforeDetect = true;
+                yield return new WaitUntil(() =>
+                {
+                    tTurnTime -= Time.deltaTime;
+                    transform.rotation = MyMath.InterpolateFunctions.Interpolate(fromRotation, toRotation, tTurnTime / tTurnFor);
+                    return tTurnTime <= 0f;
+                });
+                transform.rotation = fromRotation;
+            } 
+            else
+            {
+                transform.rotation = toRotation;
+                toRotation = facingRight ? Quaternion.Euler(0f, -90f, 0f) : Quaternion.Euler(0f, 90f, 0f);
+                parent.transform.localScale = new Vector3(
+                    -parent.transform.localScale.x,
+                    parent.transform.localScale.y,
+                    parent.transform.localScale.z
+                );
+                yield return new WaitUntil(() =>
+                {
+                    tTurnTime -= isDetected ? 2f * Time.deltaTime : Time.deltaTime;
+                    transform.rotation = MyMath.InterpolateFunctions.Interpolate(fromRotation, toRotation, tTurnTime / tTurnFor);
+                    return tTurnTime <= 0f;
+                });
+                transform.rotation = fromRotation;
+            }
+            isTurning = false;
+        }
     }
 
 
-    private Vector2 Project3DPointOntoXYPlane(Vector3 vertex)
+    private IEnumerator ResetLookDirection()
     {
-        return (transform.rotation * vertex);
-    }
+        isReseting = true;
+        float tWaitBeforeResetTime = 0f;
+        yield return new WaitUntil(() => {
+            tWaitBeforeResetTime += Time.deltaTime;
+            return tWaitBeforeResetTime >= tWaitBeforeResetFor || isDetected;
+        });
+        if (!isDetected)
+        {
+            tResetTime = 0f;
+            yield return new WaitUntil(() =>
+            {
+                tResetTime += Time.deltaTime;
+                transform.rotation = MyMath.InterpolateFunctions.Interpolate(transform.rotation, resetReferenceRotation, tResetTime / tResetIn);
+                return tResetTime >= tResetIn || isDetected;
+            });
 
-    private Vector3 InverseProject3DPointOntoXYPlane(Vector3 vertex, Vector2 hitpoint)
-    {
-        Vector3 vertexInWorldSpace = transform.TransformPoint(vertex);
-        Vector3 vertexDirectionInWorldSpace = vertexInWorldSpace - transform.position;
-        Vector3 newVertexInWorldSpace = Vector3.zero;
-        SimpleMath.LineLineIntersection(
-            out newVertexInWorldSpace,
-            hitpoint,
-            Vector3.forward,
-            transform.position,
-            vertexDirectionInWorldSpace
-        );
-        return transform.InverseTransformPoint(newVertexInWorldSpace);
+            if (!isDetected)
+            {
+                SecurityWalkBackAndForth patrol = GetComponentInParent<SecurityWalkBackAndForth>();
+                if (patrol != null 
+                    && (wasTurningBeforeDetect == (wasFacingRightBeforeDetect == isFacingRight))
+                ) {
+                    StartCoroutine(TurnAroundForSecondsAfterSeconds(patrol.TurnForSeconds, patrol.StayForSeconds));
+                }
+                yield return new WaitUntil(() => !isTurning || isDetected);
+                if (!isDetected)
+                {
+                    wasTurningBeforeDetect = false;
+                    isReset = true;
+                }
+            }
+        }
+        isReseting = false;
     }
 }
