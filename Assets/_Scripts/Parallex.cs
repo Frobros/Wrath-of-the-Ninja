@@ -11,7 +11,7 @@ public class Parallex : MonoBehaviour
 
     void Start()
     {
-        cam = Camera.current.transform;
+        cam = Camera.main.transform;
         startpos = transform.position.x;
         length = GetComponent<SpriteRenderer>().bounds.size.x;
         
