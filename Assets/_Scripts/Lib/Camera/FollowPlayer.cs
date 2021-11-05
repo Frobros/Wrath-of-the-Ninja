@@ -67,6 +67,7 @@ public class FollowPlayer : MonoBehaviour
     {
         Vector3 nextPosition = player.position;
         nextPosition.z = transform.position.z;
+        bool wasBoundFound = false;
         for (int i = 0; i < cameraBounds.Length; i++)
         {
             if (SharedCameraFunctions.positionInBounds(cameraBounds[i], player.position))
@@ -84,10 +85,11 @@ public class FollowPlayer : MonoBehaviour
                             ? max.y : nextPosition.y,
                     transform.position.z
                 );
+                wasBoundFound = true;
                 break;
             }
         }
-        return nextPosition;
+        return wasBoundFound ? nextPosition : transform.position;
     }
     private void DebugBounds()
     {
