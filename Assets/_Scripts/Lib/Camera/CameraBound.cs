@@ -1,13 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class CameraBound : MonoBehaviour
 {
-    public List<Bounds> bounds;
-    public float cameraSize;
+    [SerializeField] private float cameraSize;
+    [SerializeField] private List<Bounds> bounds;
 
-    void Start()
+    public Bounds[] Bounds { get { return bounds.ToArray();  } }
+
+    void Awake()
     {
         if (cameraSize != 0f) Camera.main.orthographicSize = cameraSize;
         bounds = new List<Bounds>();
