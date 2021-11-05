@@ -27,7 +27,8 @@ public class HandleDoor : MonoBehaviour
     {
         if (fovs.Length == 0)
             fovs = FindObjectsOfType<FieldOfView>();
-        transform.position = openLocalPosition;
+        transform.localPosition = openLocalPosition;
+        isOpen = true;
     }
 
     void Update()
@@ -84,8 +85,9 @@ public class HandleDoor : MonoBehaviour
             if (!isStopped)
             {
                 tClosingTime += Time.deltaTime;
-                tOpeningTime -= (tOpeningTime / tOpeningFor) * Time.deltaTime;
-                transform.position = InterpolateFunctions.Interpolate(openLocalPosition, closedLocalPosition, tClosingTime / tClosingFor, interpolateType);
+                tOpeningTime = (1f - tClosingTime / tClosingFor) * tOpeningFor;
+                tOpeningTime -= (tClosingTime/ tClosingFor) * Time.deltaTime;
+                transform.localPosition = InterpolateFunctions.Interpolate(openLocalPosition, closedLocalPosition, tClosingTime / tClosingFor, interpolateType);
             }
             return tClosingTime >= tClosingFor || !isDetected;
         });
@@ -122,8 +124,8 @@ public class HandleDoor : MonoBehaviour
             if (!isStopped)
             {
                 tOpeningTime += Time.deltaTime;
-                tClosingTime -= (tClosingTime / tClosingTime) * Time.deltaTime;
-                transform.position = InterpolateFunctions.Interpolate(closedLocalPosition, openLocalPosition, tOpeningTime / tOpeningFor, interpolateType);
+                tClosingTime = (1f - (tOpeningTime / tOpeningFor)) * tClosingFor;
+                transform.localPosition = InterpolateFunctions.Interpolate(closedLocalPosition, openLocalPosition, tOpeningTime / tOpeningFor, interpolateType);
             }
             return tOpeningTime >= tOpeningFor || isDetected;
         });
