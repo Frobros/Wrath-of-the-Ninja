@@ -15,7 +15,6 @@ public class NinjaMove : MonoBehaviour {
         horizontalDamping = 0.5f,
         fallMultiplier = 2.5f,
         lowJumpMultiplier = 0.5f,
-        timeScale = 0.8f,
         climbingSpeed = 3F,
         jumpHeight = 3.5f,
         walkingSpeed = 5F,
@@ -38,7 +37,6 @@ public class NinjaMove : MonoBehaviour {
     {
         physicalBody = GetComponent<Rigidbody2D>();
         state = GetComponent<NinjaStatesAnimationSound>();
-        Time.timeScale = timeScale;
     }
 
     private void Update()

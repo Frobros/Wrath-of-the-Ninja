@@ -142,18 +142,15 @@ public class NinjaStatesAnimationSound : MonoBehaviour
 
     private void HandleAnimation()
     {
-        if (Time.timeScale > 0F)
-        {
-            animator.SetBool("grounded", grounded);
-            animator.SetFloat("horizontal", Mathf.Abs(horizontal));
-            animator.SetFloat("vertical", vertical);
-            animator.SetBool("onWall", climbing || wallGrab || sliding);
-            animator.SetBool("wallGrab", wallGrab);
-            animator.SetBool("climbing", climbing);
-            animator.SetBool("ducking", ducking);
-            animator.SetBool("onLedge", onLedge);
-            animator.SetFloat("VeloY", physicalBody.velocity.y);
-        }
+        animator.SetBool("grounded", grounded);
+        animator.SetFloat("horizontal", Mathf.Abs(horizontal));
+        animator.SetFloat("vertical", vertical);
+        animator.SetBool("onWall", climbing || wallGrab || sliding);
+        animator.SetBool("wallGrab", wallGrab);
+        animator.SetBool("climbing", climbing);
+        animator.SetBool("ducking", ducking);
+        animator.SetBool("onLedge", onLedge);
+        animator.SetFloat("VeloY", physicalBody.velocity.y);
     }
 
     private void HandleSensors()

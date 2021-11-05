@@ -58,5 +58,6 @@ public class GameManager : MonoBehaviour
         }
         DontDestroyOnLoad(gameObject);
         Application.targetFrameRate = 60;
+        Time.timeScale = 1f;
     }
 }
