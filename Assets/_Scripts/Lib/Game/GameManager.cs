@@ -33,8 +33,8 @@ public class GameManager : MonoBehaviour
     void OnLevelFinishedLoading(Scene scene, LoadSceneMode mode)
     {
         HandleAudioThemeFor(scene);
-
         StartCoroutine(ActivateControlsIn(1F));
+        Time.timeScale = 1f;
     }
 
     private IEnumerator ActivateControlsIn(float v)
@@ -58,6 +58,5 @@ public class GameManager : MonoBehaviour
         }
         DontDestroyOnLoad(gameObject);
         Application.targetFrameRate = 60;
-        Time.timeScale = 1f;
     }
 }

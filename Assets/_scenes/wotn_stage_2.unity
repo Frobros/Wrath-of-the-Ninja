@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 1
+  m_UseShadowmask: 0
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -224,47 +224,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 182576482}
     m_Modifications:
-    - target: {fileID: 311282304, guid: daf26554654898d44bfc04718c143ae4, type: 3}
-      propertyPath: tMoveFor
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 311282304, guid: daf26554654898d44bfc04718c143ae4, type: 3}
-      propertyPath: endXPosition
-      value: 68
-      objectReference: {fileID: 0}
-    - target: {fileID: 311282311, guid: daf26554654898d44bfc04718c143ae4, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 311282311, guid: daf26554654898d44bfc04718c143ae4, type: 3}
-      propertyPath: killByShot
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3770044766718770903, guid: daf26554654898d44bfc04718c143ae4,
-        type: 3}
-      propertyPath: speed
-      value: 30
-      objectReference: {fileID: 0}
     - target: {fileID: 5044288744896823621, guid: daf26554654898d44bfc04718c143ae4,
         type: 3}
       propertyPath: m_Name
       value: SecurityGuard (4)
       objectReference: {fileID: 0}
-    - target: {fileID: 5045890299738697260, guid: daf26554654898d44bfc04718c143ae4,
-        type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: a6f5bdd4e606b934b9478f493749ce84, type: 2}
     - target: {fileID: 5045890299738697261, guid: daf26554654898d44bfc04718c143ae4,
         type: 3}
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 154427977}
-    - target: {fileID: 5045890299738697262, guid: daf26554654898d44bfc04718c143ae4,
-        type: 3}
-      propertyPath: whatBlocksRay.m_Bits
-      value: 141313
-      objectReference: {fileID: 0}
     - target: {fileID: 5050291119003885415, guid: daf26554654898d44bfc04718c143ae4,
         type: 3}
       propertyPath: m_RootOrder
@@ -2196,6 +2165,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: GameManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 5305264424156527685, guid: de8100b53a4344d4b9aeeb4eacf58ac2,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: de8100b53a4344d4b9aeeb4eacf58ac2, type: 3}
@@ -7964,26 +7938,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!1 &1759908575 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5045890299738697258, guid: daf26554654898d44bfc04718c143ae4,
-    type: 3}
-  m_PrefabInstance: {fileID: 76729122}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1759908582
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1759908575}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0952eb748d8bf6e47b0bc33c73fe56e9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  tDetectedFor: 0.5
-  canBeShot: 0
 --- !u!1 &1761715926
 GameObject:
   m_ObjectHideFlags: 0
@@ -13271,7 +13225,7 @@ PrefabInstance:
     - target: {fileID: 7718990992871900707, guid: d4e7b34e3d0d02a43a30e234806657e3,
         type: 3}
       propertyPath: speed
-      value: 40
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 7718990992871900707, guid: d4e7b34e3d0d02a43a30e234806657e3,
         type: 3}
