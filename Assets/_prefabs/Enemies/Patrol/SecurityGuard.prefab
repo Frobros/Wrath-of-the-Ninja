@@ -24,8 +24,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2967818288399313737}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.1}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: 0.207, z: -0.1}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_Children:
   - {fileID: 5045890299738697259}
   m_Father: {fileID: 5050291119003885415}
@@ -63,7 +63,7 @@ Transform:
   m_GameObject: {fileID: 5044288744896823621}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -5.335, y: -6.08, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 1}
   m_Children:
   - {fileID: 5045890298801550185}
   - {fileID: 5790797920342996042}
@@ -85,9 +85,15 @@ MonoBehaviour:
   groundCheck: {fileID: 5045890298801550184}
   interpolateType: 3
   startXPosition: 58
-  endXPosition: 60
-  tMoveFor: 1
-  isWalkingForth: 1
+  endXPosition: 68
+  tMoveFor: 5
+  tStayFor: 1
+  tMoveTime: 0
+  tStayTime: 0
+  shallWalkForth: 1
+  isWalking: 0
+  isStaying: 1
+  isInWalkingRoutine: 0
 --- !u!114 &311535333
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -100,7 +106,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 870a06c1925a42c469dcba7326e9bf9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isStaying: 0
 --- !u!50 &5094708909431172733
 Rigidbody2D:
   serializedVersion: 4
@@ -109,7 +114,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5044288744896823621}
-  m_BodyType: 0
+  m_BodyType: 1
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -224,12 +229,11 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5044288744896823621}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: be3330a41c3956846ac2b8dcbc8b8f5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  killByShot: 1
 --- !u!1 &5045890298801550184
 GameObject:
   m_ObjectHideFlags: 0
@@ -267,6 +271,24 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 5790797920342996042}
     m_Modifications:
+    - target: {fileID: 897872102, guid: 8ebf0202ed57003439e064d75bf2959d, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 897872102, guid: 8ebf0202ed57003439e064d75bf2959d, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 577154562516400722, guid: 8ebf0202ed57003439e064d75bf2959d,
+        type: 3}
+      propertyPath: normalViewDistance
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 577154562516400722, guid: 8ebf0202ed57003439e064d75bf2959d,
+        type: 3}
+      propertyPath: inLightViewDistance
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 577154562516400726, guid: 8ebf0202ed57003439e064d75bf2959d,
         type: 3}
       propertyPath: m_Name
@@ -326,6 +348,31 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 577154562516400748, guid: 8ebf0202ed57003439e064d75bf2959d,
+        type: 3}
+      propertyPath: canBeShot
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8814968096451013291, guid: 8ebf0202ed57003439e064d75bf2959d,
+        type: 3}
+      propertyPath: speed
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 8814968096451013291, guid: 8ebf0202ed57003439e064d75bf2959d,
+        type: 3}
+      propertyPath: tTurnFor
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8814968096451013291, guid: 8ebf0202ed57003439e064d75bf2959d,
+        type: 3}
+      propertyPath: tResetFor
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8814968096451013291, guid: 8ebf0202ed57003439e064d75bf2959d,
+        type: 3}
+      propertyPath: tWaitBeforeResetFor
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8ebf0202ed57003439e064d75bf2959d, type: 3}

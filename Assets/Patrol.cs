@@ -29,4 +29,6 @@ public class Patrol : SecurityParent
             transform.localScale.z
         );
     }
+
+    public override bool IsFacingRight() { return transform.localScale.x > 0f; }
 }

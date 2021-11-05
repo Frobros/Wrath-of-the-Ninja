@@ -29,6 +29,7 @@ public class SecurityWalkBackAndForth : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         transform.position = new Vector2(startXPosition, transform.position.y);
         parent = GetComponent<Patrol>();
+        parent.FaceRight(startXPosition < endXPosition);
     }
 
     private void Update()
@@ -42,7 +43,6 @@ public class SecurityWalkBackAndForth : MonoBehaviour
 
     private IEnumerator MoveFromTo(float startPosition, float endPosition)
     {
-        Debug.Log("START WALK ROUTINE!");
         isInWalkingRoutine = true;
         if (!isWalking)
         {
@@ -69,7 +69,6 @@ public class SecurityWalkBackAndForth : MonoBehaviour
         if (lookAtPlayer.IsDetected)
         {
             isInWalkingRoutine = false;
-            Debug.Log("INTERRUPT WALK ROUTINE 1!");
             yield break;
         }
         if (tStayTime < tStayFor)
@@ -83,22 +82,12 @@ public class SecurityWalkBackAndForth : MonoBehaviour
         if (lookAtPlayer.IsDetected)
         {
             isInWalkingRoutine = false;
-            Debug.Log("INTERRUPT WALK ROUTINE 2!");
             yield break;
         }
 
         shallWalkForth = !shallWalkForth;
         isWalking = false;
         isInWalkingRoutine = false;
-        Debug.Log("END WALK ROUTINE!");
         StartCoroutine(lookAtPlayer.TurnAround());
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.collider.tag == "Player")
-        {
-            parent.FaceRight((collision.transform.position.x - transform.position.x) > 0f);
-        }
     }
 }

@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class SecurityCameraMovement : SecurityParent {
+public class SecurityCameraMovement : MonoBehaviour {
     [SerializeField] private InterpolateType interpolateType;
     [SerializeField] private float tStayFor;
     [SerializeField] private float tRotateFor;
@@ -25,7 +25,7 @@ public class SecurityCameraMovement : SecurityParent {
     }
 
     void FixedUpdate() {
-        if (lookAtPlayer.IsReset)
+        if (!lookAtPlayer.IsBusy)
         {
             if (!isMoving)
             {

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 
 
@@ -17,6 +18,7 @@ public class SecurityLookAtPlayer : MonoBehaviour
     [SerializeField] private bool wasFacingRightBeforeDetect;
     [SerializeField] private bool isInTurningRoutine;
     [SerializeField] private bool wasTurningBeforeDetect;
+    [SerializeField] private bool hasTurnedHalf;
     [SerializeField] private bool isInResetingRoutine;
     [SerializeField] private float tResetTime;
     [SerializeField] private float tTurnTime;
@@ -39,6 +41,7 @@ public class SecurityLookAtPlayer : MonoBehaviour
         isReset = true;
         wasFacingRightBeforeDetect = false;
         parent = GetComponentInParent<SecurityParent>();
+        if (parent == null) parent = GetComponent<SecurityParent>();
         turnType = typeof(Patrol) == parent.GetType() ? TurnType.TURN_AROUND_AXIS : TurnType.TURN_AROUND_ANIMATE;
     }
 
@@ -55,20 +58,29 @@ public class SecurityLookAtPlayer : MonoBehaviour
             {
                 isReset = false;
                 wasFacingRightBeforeDetect = parent.IsFacingRight();
-                resetReferenceRotation = transform.rotation;
+                if (!wasTurningBeforeDetect)
+                    resetReferenceRotation = transform.rotation;
             }
-
             // Look at player
             Vector2 playerDirection = Vector3.Normalize(player.position - transform.position);
-            if (turnType == TurnType.TURN_AROUND_AXIS)
-                playerDirection = parent.IsFacingRight() ? playerDirection : -playerDirection;
+            if (turnType == TurnType.TURN_AROUND_AXIS && !parent.IsFacingRight())
+            {
+                playerDirection = -playerDirection;
+            }
             transform.right = MyMath.InterpolateFunctions.Interpolate((Vector2) transform.right, playerDirection, speed * Time.deltaTime);
-
             // Turn around if necessary
-            if (turnType == TurnType.TURN_AROUND_AXIS && transform.right.x < 0)
+            if (turnType == TurnType.TURN_AROUND_AXIS)
+            {
+                if (transform.right.x <= 0)
+                {
                     parent.FaceRight(!parent.IsFacingRight());
+                    transform.right = new Vector2(-transform.right.x, transform.right.y);
+                }
+            }
             else
+            {
                 parent.FaceRight(transform.right.x > 0);
+            }
         }
         else if (!IsDetected && !isReset && !isInResetingRoutine)
         {
@@ -94,6 +106,18 @@ public class SecurityLookAtPlayer : MonoBehaviour
         {
             tResetTime += Time.deltaTime;
             transform.rotation = MyMath.InterpolateFunctions.Interpolate(transform.rotation, resetReferenceRotation, tResetTime / tResetFor);
+
+            if (turnType == TurnType.TURN_AROUND_AXIS)
+            {
+                if (transform.right.x <= 0)
+                {
+                    parent.FaceRight(!parent.IsFacingRight());
+                }
+            }
+            else
+            {
+                parent.FaceRight(transform.right.x > 0);
+            }
             return tResetTime >= tResetFor || IsDetected;
         });
         if (IsDetected)
@@ -102,22 +126,30 @@ public class SecurityLookAtPlayer : MonoBehaviour
             yield break;
         }
 
-        SecurityWalkBackAndForth patrol = GetComponentInParent<SecurityWalkBackAndForth>();
-        if (patrol != null
-            && (wasTurningBeforeDetect == (wasFacingRightBeforeDetect == parent.IsFacingRight()))
-        )
+        if (turnType == TurnType.TURN_AROUND_AXIS)
         {
-            StartCoroutine(TurnAround());
+
+            if (!wasTurningBeforeDetect 
+                && (wasFacingRightBeforeDetect != parent.IsFacingRight())
+                || wasTurningBeforeDetect 
+                && (
+                    !hasTurnedHalf && (wasFacingRightBeforeDetect == parent.IsFacingRight())
+                    || hasTurnedHalf && (wasFacingRightBeforeDetect != parent.IsFacingRight())
+                )
+            )
+            {
+                StartCoroutine(TurnAround());
+            }
         }
         yield return new WaitUntil(() => !isInTurningRoutine || IsDetected);
         if (!IsDetected)
         {
-            wasTurningBeforeDetect = false;
             isReset = true;
+            wasTurningBeforeDetect = false;
+            hasTurnedHalf = false;
         }
         isInResetingRoutine = false;
     }
-
 
     public IEnumerator TurnAround()
     {
@@ -145,21 +177,20 @@ public class SecurityLookAtPlayer : MonoBehaviour
         });
         if (IsDetected)
         {
+            resetReferenceRotation = fromRotation;
+            wasFacingRightBeforeDetect = parent.IsFacingRight();
             wasTurningBeforeDetect = true;
-            yield return new WaitUntil(() =>
-            {
-                tTurnTime -= 2f * Time.deltaTime;
-                transform.rotation = MyMath.InterpolateFunctions.Interpolate(fromRotation, toRotation, tTurnTime / turnForHalf);
-                return tTurnTime <= 0f;
-            });
-            transform.rotation = fromRotation;
             isInTurningRoutine = false;
+            hasTurnedHalf = false;
             yield break;
         }
         transform.rotation = toRotation;
 
         if (turnType == TurnType.TURN_AROUND_AXIS)
-            toRotation = facingRight ? Quaternion.Euler(0f, -90f, 0f) : Quaternion.Euler(0f, 90f, 0f);
+        {
+            toRotation = fromRotation;
+            fromRotation = facingRight ? Quaternion.Euler(0f, -90f, 0f) : Quaternion.Euler(0f, 90f, 0f);
+        }
         else
         {
             tTurnTime = 0f;
@@ -167,26 +198,25 @@ public class SecurityLookAtPlayer : MonoBehaviour
             toRotation = facingRight ? Quaternion.Euler(0f, 180f, 0f) : Quaternion.Euler(0f, 0f, 0f);
         }
 
-
         parent.FaceRight(!facingRight);
+        hasTurnedHalf = true;
+        tTurnTime = 0f;
         yield return new WaitUntil(() =>
         {
-            if (turnType == TurnType.TURN_AROUND_AXIS)
-            {
-                tTurnTime -= IsDetected ? 2f * Time.deltaTime : Time.deltaTime;
-                transform.rotation = MyMath.InterpolateFunctions.Interpolate(fromRotation, toRotation, tTurnTime / turnForHalf);
-                return tTurnTime <= 0f;
-            }
-            else
-            {
-                tTurnTime += IsDetected ? 2f * Time.deltaTime : Time.deltaTime;
-                transform.rotation = MyMath.InterpolateFunctions.Interpolate(fromRotation, toRotation, tTurnTime / turnForHalf);
-                return tTurnTime >= turnForHalf;
-            }
+            tTurnTime += Time.deltaTime;
+            transform.rotation = MyMath.InterpolateFunctions.Interpolate(fromRotation, toRotation, tTurnTime / turnForHalf);
+            return tTurnTime >= turnForHalf || IsDetected;
         });
-        if (turnType == TurnType.TURN_AROUND_AXIS)
-            transform.rotation = fromRotation;
-        else transform.rotation = toRotation;
+        if (IsDetected)
+        {
+            resetReferenceRotation = toRotation;
+            wasTurningBeforeDetect = true;
+            isInTurningRoutine = false;
+            wasFacingRightBeforeDetect = parent.IsFacingRight();
+            yield break;
+        }
+        transform.rotation = toRotation;
         isInTurningRoutine = false;
+        wasTurningBeforeDetect = false;
     }
 }

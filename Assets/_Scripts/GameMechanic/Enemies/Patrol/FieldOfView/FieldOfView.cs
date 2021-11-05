@@ -32,11 +32,12 @@ public class FieldOfView : MonoBehaviour
         GetComponent<MeshFilter>().mesh = mesh;
         inLightFieldOfViews = new List<GameObject>();
         parent = GetComponentInParent<SecurityParent>();
+        if (parent == null) parent = GetComponent<SecurityParent>();
     }
 
     private void LateUpdate() 
     {
-        isFacingRight = parent.transform.localScale.x > 0f;
+        isFacingRight = parent.IsFacingRight();
         UpdateInLightFOV();
         UpdateNormalFOV();
         isDetected = isPlayerDetectedInLight || isPlayerDetectedNormal;
