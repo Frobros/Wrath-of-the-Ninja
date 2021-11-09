@@ -1,0 +1,95 @@
+﻿using System.Collections;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
+
+public class FadeInAndOutCamera : MonoBehaviour
+{
+    private Animator animator;
+    private Image black;
+
+    private bool colorSet;
+    public float grayScaleFadingSpeed;
+
+    private void Awake()
+    {
+        animator = GetComponent<Animator>();
+        black = GetComponent<Image>();
+    }
+
+    private void Update()
+    {
+        if (UIManager.paused && !colorSet)
+        {
+            animator.SetBool("Overlay", true);
+            colorSet = true;
+        }
+        else if (!UIManager.paused && colorSet)
+        {
+            animator.SetBool("Overlay", false);
+            colorSet = false;
+        }
+    }
+
+    private IEnumerator FadeOutContinue(string sceneName)
+    {
+        GameManager.Pause();
+        FindObjectOfType<Continue>().setText();
+        Volume gloabalVolume = FindObjectOfType<Volume>();
+
+        gloabalVolume.profile.TryGet<ColorAdjustments>(out var colors);
+
+        float grayScale =  0;
+        yield return new WaitUntil(() => {
+            if (grayScale > -100)
+            {
+                grayScale -= grayScaleFadingSpeed;
+                colors.saturation.value = grayScale;
+            }
+            return InputManager.jump;
+        });
+        animator.SetBool("FadeOut", true);
+        yield return new WaitUntil(() => black.color.a == 1);
+        SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+    }
+
+    private IEnumerator FadeOut(string sceneName)
+    {
+        GameManager.Pause();
+        animator.SetBool("FadeOut", true);
+        yield return new WaitUntil(() => black.color.a == 1);
+        SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+    }
+
+    public void FadeToNextScene(string sceneName)
+    {
+        if (sceneName.Contains("stage") 
+            && StageManager.onStage
+            && FindObjectOfType<NinjaStatesAnimationSound>().dead
+        ) {
+            StartCoroutine(FadeOutContinue(sceneName));
+        } else
+        {
+            StartCoroutine(FadeOut(sceneName));
+        }
+    }
+
+    void OnEnable()
+    {
+        //Tell our 'OnLevelFinishedLoading' function to start listening for a scene change as soon as this script is enabled.
+        SceneManager.sceneLoaded += OnLevelFinishedLoading;
+    }
+
+    void OnDisable()
+    {
+        //Tell our 'OnLevelFinishedLoading' function to stop listening for a scene change as soon as this script is disabled. Remember to always have an unsubscription for every delegate you subscribe to!
+        SceneManager.sceneLoaded -= OnLevelFinishedLoading;
+    }
+
+    void OnLevelFinishedLoading(Scene scene, LoadSceneMode mode)
+    {
+        animator.SetBool("FadeOut", false);
+    }
+}
