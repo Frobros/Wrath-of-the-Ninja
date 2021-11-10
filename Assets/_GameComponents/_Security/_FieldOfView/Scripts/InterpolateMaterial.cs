@@ -22,7 +22,7 @@ public class InterpolateMaterial : MonoBehaviour
     {
         tInterpolateTime = timer.DetectedTime;
         tInterpolateFor = timer.DetectedFor;
-        interpolateFactor = MyMath.InterpolateFunctions.Interpolate(0f, 1f, tInterpolateTime / tInterpolateFor, interpolateType);
+        interpolateFactor = MyMath.Interpolation.Interpolate(0f, 1f, tInterpolateTime / tInterpolateFor, interpolateType);
         meshRenderer.material.Lerp(material1, material2, interpolateFactor);
     }
 }

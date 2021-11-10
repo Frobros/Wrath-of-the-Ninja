@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
+using MyMath;
 
 public class FollowPlayer : MonoBehaviour
 {
@@ -52,7 +53,7 @@ public class FollowPlayer : MonoBehaviour
         int index = 0;
         foreach (Bounds bounds in cameraBounds)
         {
-            adjustedBounds[index] = SharedCameraFunctions.adjustedBounds(bounds.min, bounds.max);
+            adjustedBounds[index] = CameraMath.adjustedBounds(bounds.min, bounds.max);
             index++;
         }
     }
@@ -70,7 +71,7 @@ public class FollowPlayer : MonoBehaviour
         bool wasBoundFound = false;
         for (int i = 0; i < cameraBounds.Length; i++)
         {
-            if (SharedCameraFunctions.positionInBounds(cameraBounds[i], player.position))
+            if (CameraMath.positionInBounds(cameraBounds[i], player.position))
             {
                 Vector2
                     min = adjustedBounds[i].min,

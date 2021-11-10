@@ -67,7 +67,7 @@ public class SecurityLookAtPlayer : MonoBehaviour
             {
                 playerDirection = -playerDirection;
             }
-            transform.right = MyMath.InterpolateFunctions.Interpolate((Vector2) transform.right, playerDirection, speed * Time.deltaTime);
+            transform.right = MyMath.Interpolation.Interpolate((Vector2) transform.right, playerDirection, speed * Time.deltaTime);
             // Turn around if necessary
             if (turnType == TurnType.TURN_AROUND_AXIS)
             {
@@ -105,7 +105,7 @@ public class SecurityLookAtPlayer : MonoBehaviour
         yield return new WaitUntil(() =>
         {
             tResetTime += Time.deltaTime;
-            transform.rotation = MyMath.InterpolateFunctions.Interpolate(transform.rotation, resetReferenceRotation, tResetTime / tResetFor);
+            transform.rotation = MyMath.Interpolation.Interpolate(transform.rotation, resetReferenceRotation, tResetTime / tResetFor);
 
             if (turnType == TurnType.TURN_AROUND_AXIS)
             {
@@ -172,7 +172,7 @@ public class SecurityLookAtPlayer : MonoBehaviour
         yield return new WaitUntil(() =>
         {
             tTurnTime += Time.deltaTime;
-            transform.rotation = MyMath.InterpolateFunctions.Interpolate(fromRotation, toRotation, tTurnTime / turnForHalf);
+            transform.rotation = MyMath.Interpolation.Interpolate(fromRotation, toRotation, tTurnTime / turnForHalf);
             return tTurnTime >= turnForHalf || IsDetected;
         });
         if (IsDetected)
@@ -204,7 +204,7 @@ public class SecurityLookAtPlayer : MonoBehaviour
         yield return new WaitUntil(() =>
         {
             tTurnTime += Time.deltaTime;
-            transform.rotation = MyMath.InterpolateFunctions.Interpolate(fromRotation, toRotation, tTurnTime / turnForHalf);
+            transform.rotation = MyMath.Interpolation.Interpolate(fromRotation, toRotation, tTurnTime / turnForHalf);
             return tTurnTime >= turnForHalf || IsDetected;
         });
         if (IsDetected)

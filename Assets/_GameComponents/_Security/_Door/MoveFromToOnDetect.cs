@@ -85,7 +85,7 @@ public class MoveFromToOnDetect : MonoBehaviour
                 tClosingTime += Time.deltaTime;
                 tOpeningTime = (1f - tClosingTime / tClosingFor) * tOpeningFor;
                 tOpeningTime -= (tClosingTime/ tClosingFor) * Time.deltaTime;
-                transform.localPosition = InterpolateFunctions.Interpolate(fromLocalPosition, toLocalPosition, tClosingTime / tClosingFor, interpolateType);
+                transform.localPosition = Interpolation.Interpolate(fromLocalPosition, toLocalPosition, tClosingTime / tClosingFor, interpolateType);
             }
             return tClosingTime >= tClosingFor || !isDetected;
         });
@@ -123,7 +123,7 @@ public class MoveFromToOnDetect : MonoBehaviour
             {
                 tOpeningTime += Time.deltaTime;
                 tClosingTime = (1f - (tOpeningTime / tOpeningFor)) * tClosingFor;
-                transform.localPosition = InterpolateFunctions.Interpolate(toLocalPosition, fromLocalPosition, tOpeningTime / tOpeningFor, interpolateType);
+                transform.localPosition = Interpolation.Interpolate(toLocalPosition, fromLocalPosition, tOpeningTime / tOpeningFor, interpolateType);
             }
             return tOpeningTime >= tOpeningFor || isDetected;
         });

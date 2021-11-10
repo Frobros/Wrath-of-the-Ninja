@@ -43,7 +43,7 @@ namespace MyMath
 		EaseInOutBounce
 	}
 
-	public class InterpolateFunctions
+	public class Interpolation
 	{
 		public static float Interpolate(float from, float to, float time, InterpolateType type = InterpolateType.Lerp)
 		{

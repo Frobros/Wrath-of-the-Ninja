@@ -57,7 +57,7 @@ public class SecurityWalkBackAndForth : MonoBehaviour
             {
                 tMoveTime += Time.deltaTime;
                 Vector2 targetPosition = new Vector2(
-                    InterpolateFunctions.Interpolate(startPosition, endPosition, tMoveTime / tMoveFor, interpolateType),
+                    Interpolation.Interpolate(startPosition, endPosition, tMoveTime / tMoveFor, interpolateType),
                     transform.position.y
                 );
                 rb.MovePosition(targetPosition);

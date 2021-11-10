@@ -43,7 +43,7 @@ public class SecurityCameraMovement : MonoBehaviour {
         yield return new WaitUntil(() =>
         {
             tRotateTime += Time.deltaTime;
-            transform.rotation = MyMath.InterpolateFunctions.Interpolate(from, to, tRotateTime / tRotateFor, interpolateType);
+            transform.rotation = MyMath.Interpolation.Interpolate(from, to, tRotateTime / tRotateFor, interpolateType);
             return tRotateTime >= tRotateFor || lookAtPlayer.IsDetected;
         });
         if (!lookAtPlayer.IsDetected)
