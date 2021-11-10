@@ -3,20 +3,26 @@ using UnityEngine.UI;
 
 public class TextBoxManager : MonoBehaviour
 {
-    private static GameObject textBox;
-    private static GameObject textBoxBackground;
-    private static GameObject textBoxAuthor;
-    private static GameObject textBoxContent;
-    private static AudioSource audioSource;
-    public static bool active = false;
-    public static bool paused = false;
+    private GameObject textBox;
+    private GameObject textBoxBackground;
+    private GameObject textBoxAuthor;
+    private GameObject textBoxContent;
+    private AudioSource audioSource;
+    private TextImporter textImporter;
+    private bool isActive = false;
+    private bool isPaused = false;
 
-    public static Conversation conversation;
+    private Conversation currentConversation;
+
+    internal bool hasConversationEnded()
+    {
+        return currentConversation.hasEnded();
+    }
 
     private void Awake()
     {
-        if (audioSource == null)
-            audioSource = GetComponent<AudioSource>();
+        audioSource = GetComponent<AudioSource>();
+        textImporter = GetComponent<TextImporter>();
         textBox = GameObject.FindGameObjectWithTag("TextBox");
         if (textBox != null)
         {
@@ -48,13 +54,12 @@ public class TextBoxManager : MonoBehaviour
 
     private void Update()
     {
-        if (active && conversation != null && InputManager.confirm)
+        if (isActive && currentConversation != null && GameManager._Input.confirm)
         {
-            conversation.currentSnippet++;
-            if (conversation.hasEnded())
+            currentConversation.currentSnippet++;
+            if (currentConversation.hasEnded())
             {
                 DisableTextBox();
-                Time.timeScale = 1F;
             }
             else
             {
@@ -63,42 +68,43 @@ public class TextBoxManager : MonoBehaviour
         }
     }
 
-    private static void DisplayConversation()
+    private void DisplayConversation()
     {
         if (audioSource) audioSource.Stop();
 
-        textBoxContent.GetComponent<Text>().text = conversation.getCurrentSnippet().text;
+        textBoxContent.GetComponent<Text>().text = currentConversation.getCurrentSnippet().text;
         Debug.Log(textBoxContent.GetComponent<Text>().text);
 
-        if (conversation.getAuthor().Length == 0)
+        if (currentConversation.getAuthor().Length == 0)
         {
             textBoxAuthor.gameObject.SetActive(false);
         }
         else
         {
-            textBoxAuthor.GetComponent<Text>().text = conversation.getAuthor();
+            textBoxAuthor.GetComponent<Text>().text = currentConversation.getAuthor();
         }
 
-        if (conversation.getCurrentSnippet() != null)
+        if (currentConversation.getCurrentSnippet() != null)
         {
-            AudioClip vocals = conversation.getCurrentSnippet().vocals;
+            AudioClip vocals = currentConversation.getCurrentSnippet().vocals;
             if (audioSource && vocals != null)
             {
-                audioSource.PlayOneShot(vocals);
+                audioSource.PlayOneShot(vocals, 1F);
             }
         }
 
     }
 
-    public static void EnableTextBox(Conversation conversation)
+    public void EnableTextBox(string conversationId)
     {
-        active = true;
+        Conversation conversation = textImporter.textFileToConversation(conversationId);
+        isActive = true;
         // textBox.GetComponent<Image>().CrossFadeAlpha(100F, 0.1f, false);
         foreach (Transform go in textBox.GetComponentsInChildren<Transform>(true))
         {
             go.gameObject.SetActive(true);
         }
-        TextBoxManager.conversation = conversation;
+        currentConversation = conversation;
         DisplayConversation();
         textBoxBackground.SetActive(true);
         textBoxContent.SetActive(true);
@@ -108,13 +114,13 @@ public class TextBoxManager : MonoBehaviour
     private void DisableTextBox()
     {
         textBox.GetComponent<Image>().CrossFadeAlpha(0F, 0.1f, false);
-        active = false;
+        isActive = false;
         textBoxBackground.SetActive(false);
         textBoxContent.SetActive(false);
         textBoxAuthor.SetActive(false);
     }
 
-    public static bool isPlayingSound()
+    public bool isPlayingSound()
     {
         return audioSource != null && audioSource.isPlaying;
     }

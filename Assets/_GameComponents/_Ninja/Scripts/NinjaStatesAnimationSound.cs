@@ -2,23 +2,16 @@
 
 public class NinjaStatesAnimationSound : MonoBehaviour
 {
-    public Transform 
-        groundCheckBack, 
+    [SerializeField] private Transform
+        groundCheckBack,
         groundCheckFront,
         ledgeCheck,
-        squeezeCheck, 
+        squeezeCheck,
         wallCheckDown,
-        wallCheckUp, 
+        wallCheckUp,
         wedgedCheck;
 
-    private Collider2D floor,
-        ladderedDown,
-        ladderedUp;
-    private Rigidbody2D physicalBody;
-    private new CapsuleCollider2D collider;
-    private Animator animator;
-    
-    public LayerMask
+    [SerializeField] private LayerMask
         whatIsClimbableLeft,
         whatIsClimbableRight,
         whatIsGround,
@@ -32,15 +25,11 @@ public class NinjaStatesAnimationSound : MonoBehaviour
         revertCollisionIgnoreAt = 0F;
 
     public float
-        wallJumpFrame = 0.3f,
-        wallJumpEndAt = 0F,
         horizontal,
         vertical;
 
-    private bool
-        collisionIgnored = false;
-
     public bool
+        collisionIgnored = false,
         climbing = false,
         controlHorizontal = true,
         dead = false,
@@ -60,7 +49,6 @@ public class NinjaStatesAnimationSound : MonoBehaviour
         performLedgeLand,
         shurikenButton,
         squeezed = false,
-        wallJumping = false,
         walled = false, 
         walledDown = false, 
         walledUp = false, 
@@ -74,6 +62,12 @@ public class NinjaStatesAnimationSound : MonoBehaviour
         slipping = false;
 
     private ShotSprite shotSprite;
+    private Collider2D floor,
+        ladderedDown,
+        ladderedUp;
+    private Rigidbody2D physicalBody;
+    private new CapsuleCollider2D collider;
+    private Animator animator;
 
     void Start()
     {
@@ -100,7 +94,7 @@ public class NinjaStatesAnimationSound : MonoBehaviour
     private void Update()
     {
         HandleButtons();
-        HandleAnimation();
+        if (!GameManager.IsStopped) HandleAnimation();
         HandleSensors();
         HandlePermeableFloor();
     }
@@ -110,15 +104,14 @@ public class NinjaStatesAnimationSound : MonoBehaviour
     {
         HandlePhysics();
         HandleStates();
-        HandlePhysicalConstraints();
     }
 
     private void HandleButtons()
     {
-        vertical = InputManager.yAxis;
-        horizontal = Mathf.Abs(InputManager.xAxis) > 0.2f ? InputManager.xAxis : 0F;
-        jumpButton = InputManager.jump;
-        shurikenButton = InputManager.action;
+        vertical = GameManager._Input.yAxis;
+        horizontal = Mathf.Abs(GameManager._Input.xAxis) > 0.2f ? GameManager._Input.xAxis : 0F;
+        jumpButton = GameManager._Input.jump;
+        shurikenButton = GameManager._Input.action;
     }
 
     internal bool isLedgeClimbingUp()
@@ -197,7 +190,6 @@ public class NinjaStatesAnimationSound : MonoBehaviour
         }
     }
 
-
     private void HandleStates()
     {
         facingRight = transform.localScale.x > 0.0f;
@@ -216,11 +208,6 @@ public class NinjaStatesAnimationSound : MonoBehaviour
         landing = groundedFront && !groundedBack && !walledDown && !walledUp;
         slipping = !groundedFront && groundedBack && !walledDown;
         controlHorizontal = !(wallGrab || climbing || sliding || stairSliding);
-
-        if (wallJumping && wallJumpEndAt < Time.time)
-        {
-            wallJumping = false;
-        }
     }
 
     private void HandleClimbingStates()
@@ -237,7 +224,7 @@ public class NinjaStatesAnimationSound : MonoBehaviour
         {
             climbing = vertical > 0.5f;
             wasClimbingOnSameLadderBefore = climbing;
-            onClimbable = wasClimbingOnSameLadderBefore;
+            onClimbable = climbing;
         } else
         {
             onClimbable = walled || (laddered && wasClimbingOnSameLadderBefore);
@@ -256,21 +243,6 @@ public class NinjaStatesAnimationSound : MonoBehaviour
         }
     }
 
-    private void HandlePhysicalConstraints()
-    {
-        if (wallGrab)
-        {
-            physicalBody.constraints = RigidbodyConstraints2D.FreezeAll;
-        }
-        else if (climbing || sliding)
-        {
-            physicalBody.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
-        }
-        else
-        {
-            physicalBody.constraints = RigidbodyConstraints2D.FreezeRotation;
-        }
-    }
     private void HandlePermeableFloor()
     {
         if (onPermeableFloor && ducking && jumpButton)
@@ -285,12 +257,6 @@ public class NinjaStatesAnimationSound : MonoBehaviour
     internal bool commitAndGo()
     {
         return facingRight && horizontal > 0F || !facingRight && horizontal < 0F;
-    }
-
-    internal void initialzeWallJump()
-    {
-        wallJumping = true;
-        wallJumpEndAt = Time.time + wallJumpFrame;
     }
 
     internal void initialzeJump()

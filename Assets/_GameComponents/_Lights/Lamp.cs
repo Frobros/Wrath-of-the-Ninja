@@ -8,18 +8,18 @@ public class Lamp : MonoBehaviour
     public int lightId;
 
     private static int numberOfLights = 0;
-    private Light2D light;
+    private Light2D lampLight;
     PolygonCollider2D polygon;
 
     private void Start()
     {
-        light = GetComponent<UnityEngine.Experimental.Rendering.Universal.Light2D>();
+        lampLight = GetComponent<UnityEngine.Experimental.Rendering.Universal.Light2D>();
         polygon = GetComponent<PolygonCollider2D>();
         if (polygon == null)
         {
             polygon = gameObject.AddComponent<PolygonCollider2D>();
             List<Vector2> points = new List<Vector2>();
-            foreach (Vector2 point in light.shapePath)
+            foreach (Vector2 point in lampLight.shapePath)
             {
                 points.Add(point);
             }

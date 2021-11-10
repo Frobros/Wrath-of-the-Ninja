@@ -17,6 +17,7 @@ public class FollowPlayer : MonoBehaviour
     {
         //Tell our 'OnLevelFinishedLoading' function to start listening for a scene change as soon as this script is enabled.
         SceneManager.sceneLoaded += OnLevelFinishedLoading;
+        transform.position = Vector3.zero + transform.position.z * Vector3.forward;
     }
 
     void OnDisable()

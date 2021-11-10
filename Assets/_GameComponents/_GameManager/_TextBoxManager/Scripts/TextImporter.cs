@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class TextImporter : MonoBehaviour
 {
-    private static TextImporter instance;
-
     private static TextAsset textFile;
-    private static Conversation conversation;
-    private static ConversationSnippet snippet;
     private static List<ConversationSnippet> snippets;
-    private static string conversationId;
     private static int snippetId = 0;
     private static bool conversationFound = false;
 
@@ -20,7 +13,7 @@ public class TextImporter : MonoBehaviour
         textFile = Resources.Load<TextAsset>("_TextBoxContent/text/TextBoxLines");
     }
 
-    internal static Conversation textFileToConversation(string conversationId)
+    internal Conversation textFileToConversation(string conversationId)
     {
         string[] textLines;
         if (textFile != null)
@@ -47,7 +40,7 @@ public class TextImporter : MonoBehaviour
                     }
 
                     // prepare next snippet
-                    snippet = new ConversationSnippet();
+                    ConversationSnippet snippet = new ConversationSnippet();
                     snippet.id = snippetId;
                     snippet.text = tableRow[2];
                     snippet.talkerName = tableRow[1];
@@ -67,7 +60,7 @@ public class TextImporter : MonoBehaviour
         return null;
     }
 
-    private static string[] conversationSnippetTextLineToStringArry(string sLine)
+    private string[] conversationSnippetTextLineToStringArry(string sLine)
     {
         string[] naiveResult = sLine.Split(',');
         if (naiveResult.Length == 3)
@@ -82,7 +75,7 @@ public class TextImporter : MonoBehaviour
         return result;
     }
 
-    private static string[] conversationTextFileToStringArray(TextAsset textFile)
+    private string[] conversationTextFileToStringArray(TextAsset textFile)
     {
         string[] result = textFile.text.Replace("\r\n", "\n").Split('\n');
         return result;
@@ -101,7 +94,7 @@ public class TextImporter : MonoBehaviour
         }
     }
 
-    private static string removePrefix(string content)
+    private string removePrefix(string content)
     {
         return content.Substring(3, content.Length - 3);
     }

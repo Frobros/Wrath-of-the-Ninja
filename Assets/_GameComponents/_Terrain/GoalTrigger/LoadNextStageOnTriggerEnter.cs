@@ -6,7 +6,7 @@ public class LoadNextStageOnTriggerEnter : MonoBehaviour
     {
         if (collision.gameObject.tag == "Player")
         {
-            StageManager.InitializeNextStage();
+            GameManager._StageManager.InitializeNextStage();
         }
     }
 }

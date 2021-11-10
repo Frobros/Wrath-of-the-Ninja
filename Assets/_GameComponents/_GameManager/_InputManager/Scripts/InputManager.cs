@@ -2,7 +2,7 @@
 
 public class InputManager : MonoBehaviour
 {
-    public static bool
+    public bool
         active = true,
         action,
         actionContinuous,
@@ -18,24 +18,11 @@ public class InputManager : MonoBehaviour
         right,
         reset,
         up;
-    public static float
+    public float
         xAxis,
         yAxis;
-    private static InputManager instance;
-    public static bool gamePadActive;
-    public static bool touchActive;
-
-    void Start()
-    {
-        if (instance != null)
-        {
-            Destroy(this);
-        }
-        else
-        {
-            instance = this;
-        }
-    }
+    public bool gamePadActive;
+    public bool touchActive;
 
     private void Update()
     {

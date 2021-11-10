@@ -3,27 +3,45 @@
 public class DisplayTextBox : MonoBehaviour
 {
     [SerializeField] private string conversationId;
-    private float timeOffset = 0f;
+    private InputManager input;
+    private TextBoxManager textBoxManager;
+    private bool canStartConversation = false;
+    private bool isInConversation = false;
 
     private void Start()
     {
-        timeOffset = Time.time;
+        input = GameManager._Input;
+        textBoxManager = GameManager._TextBoxManager;
     }
-    private void OnTriggerStay2D(Collider2D collision)
-    {
-        bool canTrigger = (timeOffset + 1f) < Time.time;
-        if (InputManager.jump)
-        {
-            Debug.Log("Offset: " + timeOffset);
-            Debug.Log("Time: " + Time.time);
-        }
 
-        if (collision.tag == "Player" && InputManager.jump && canTrigger)
+    private void Update()
+    {
+        if (input.jump && canStartConversation && !isInConversation)
         {
-            Time.timeScale = 0F;
-            timeOffset = Time.time;
-            Conversation conversation = TextImporter.textFileToConversation(conversationId);
-            TextBoxManager.EnableTextBox(conversation);
+            GameManager.Pause();
+            isInConversation = true;
+            textBoxManager.EnableTextBox(conversationId);
+        }
+        else if (isInConversation && textBoxManager.hasConversationEnded())
+        {
+            GameManager.Pause(false);
+            isInConversation = false;
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.tag == "Player")
+        {
+            canStartConversation = true;
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.tag == "Player")
+        {
+            canStartConversation = false;
         }
     }
 }

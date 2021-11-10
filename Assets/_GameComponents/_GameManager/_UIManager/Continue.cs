@@ -9,11 +9,13 @@ public class Continue : MonoBehaviour
     public TextMeshProUGUI text;
     public static bool frozen;
     private bool initialize;
-    private bool died = false;
+    private StageManager stageManager;
 
     private void Start()
     {
         InitializeComponent();
+        stageManager = GameManager._StageManager;
+        audioManager = GameManager._AudioManager;
     }
 
     private void InitializeComponent()
@@ -23,8 +25,6 @@ public class Continue : MonoBehaviour
         text.text = "";
         frozen = false;
         initialize = false;
-        died = false;
-        audioManager = FindObjectOfType<AudioManager>();
     }
 
     void Update()
@@ -36,15 +36,7 @@ public class Continue : MonoBehaviour
                 Time.timeScale = 0F;
                 frozen = true;
                 audioManager.PlaySound("pain", 1);
-                StageManager.ReloadScene();
-            }
-
-            if (frozen) {
-                if (!died && !audioManager.isPlaying("pain"))
-                {
-                    died = true;
-                    audioManager.PlaySound("dying_" + Random.Range(1, 5), 1);
-                }
+                stageManager.ReloadScene();
             }
         }
     }

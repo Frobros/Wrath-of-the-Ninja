@@ -1,16 +1,13 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Checkpoint : MonoBehaviour
 {
-    public int newCheckpoint = 0;
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        StageManager.changeCurrentCheckpoint(newCheckpoint);
-    }
+    [SerializeField] private int checkpointId = 0;
+    private StageManager stageManager;
 
-    internal int getCheckpointIdentifier()
-    {
-        return newCheckpoint;
-    }
+    public int CheckpointId { get { return checkpointId; } }
+
+    private void Start() { stageManager = GameManager._StageManager; }
+
+    private void OnTriggerEnter2D(Collider2D collision) { stageManager.changeCurrentCheckpoint(checkpointId); }
 }

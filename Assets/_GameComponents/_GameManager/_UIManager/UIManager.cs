@@ -3,17 +3,21 @@ using UnityEngine.EventSystems;
 
 public class UIManager : MonoBehaviour
 {
-    public static bool paused = false;
+    public bool isPaused = false;
     public GameObject pauseButton;
     public GameObject pauseMenu;
     public GameObject resumeButton;
     public GameObject textBox;
 
+    private StageManager stageManager;
+
+    private void Start() { stageManager = GameManager._StageManager; }
+
     private void Update()
     {
-        if (InputManager.escape)
+        if (GameManager._Input.escape)
         {
-            if (paused)
+            if (isPaused)
             {
                 OnResume();
             }
@@ -28,7 +32,7 @@ public class UIManager : MonoBehaviour
     {
         if (!Continue.frozen)
         {
-            paused = true;
+            isPaused = true;
             if (!TouchBehaviour.active) 
                 EventSystem.current.SetSelectedGameObject(resumeButton);
             pauseMenu.SetActive(true);
@@ -41,19 +45,19 @@ public class UIManager : MonoBehaviour
     {
         pauseMenu.SetActive(false);
         pauseButton.SetActive(true);
-        paused = false;
+        isPaused = false;
         Time.timeScale = 1F;
     }
 
     public void OnRetry()
     {
         OnResume();
-        StageManager.ReloadScene();
+        stageManager.ReloadScene();
     }
 
     public void OnExit()
     {
         OnResume();
-        StageManager.ExitScene();
+        stageManager.ExitScene();
     }
 }

@@ -4,10 +4,9 @@ using UnityEngine.SceneManagement;
 
 public class StageManager : MonoBehaviour
 {
-    private static bool initializing = false;
-    public static bool 
+    private bool isLoading = false;
+    private bool 
         hasTextSceneEnded,
-        paused = false,
         onTitle,
         onControls,
         onIntro,
@@ -15,19 +14,24 @@ public class StageManager : MonoBehaviour
         onOutro,
         onCredits;
 
-    public static int 
+    public int 
         currentStage = 0,
         currentCheckpoint = 0,
         lastStage = 3;
 
-    public static string activeSceneName;
-    private static FadeInAndOutCamera fader;
+    private string activeSceneName;
+    private FadeInAndOutCamera fader;
 
     private Checkpoint[] checkpoints;
+    private InputManager input;
 
-    private void Awake()
+    public bool TextSceneHasEnded { set { hasTextSceneEnded = value; } }
+    public bool IsOnStage { get { return onStage; } }
+
+    private void Start()
     {
         fader = FindObjectOfType<FadeInAndOutCamera>();
+        input = GameManager._Input;
     }
 
     private void Update()
@@ -43,11 +47,11 @@ public class StageManager : MonoBehaviour
 
     private void ProtocolOnTitle()
     {
-        if (onTitle && InputManager.confirm && !initializing)
+        if (onTitle && input.confirm && !isLoading)
         {
-            InputManager.confirm = false;
-            initializing = true;
-            fader.FadeToNextScene("wotn_controls");
+            input.confirm = false;
+            isLoading = true;
+            fader.FadeToNextScene(Scenes.CONTROLS);
         }
 
     }
@@ -56,15 +60,15 @@ public class StageManager : MonoBehaviour
     {
         if (onControls)
         {
-            if (InputManager.escape)
+            if (input.escape)
             {
-                InputManager.escape = false;
-                fader.FadeToNextScene("wotn_title");
+                input.escape = false;
+                fader.FadeToNextScene(Scenes.TITLE);
             }
-            else if (InputManager.confirm)
+            else if (input.confirm)
             {
-                InputManager.confirm = false;
-                fader.FadeToNextScene("wotn_intro");
+                input.confirm = false;
+                fader.FadeToNextScene(Scenes.INTRO);
             }
         }
     }
@@ -72,11 +76,11 @@ public class StageManager : MonoBehaviour
 
     private void ProtocolOnIntro()
     {
-        if (!initializing && onIntro && hasTextSceneEnded)
+        if (!isLoading && onIntro && hasTextSceneEnded)
         {
-            initializing = true;
+            isLoading = true;
             currentStage = 0;
-            fader.FadeToNextScene("wotn_stage_" + currentStage);
+            fader.FadeToNextScene(Scenes.STAGES[currentStage]);
         }
     }
 
@@ -84,19 +88,19 @@ public class StageManager : MonoBehaviour
     {
         if (onStage)
         {
-            if (InputManager.reset)
+            if (input.reset)
             {
-                fader.FadeToNextScene(SceneManager.GetActiveScene().name);
+                fader.FadeToNextScene(Scenes.STAGES[currentStage]);
             }
         }
     }
     private void ProtocolOnOutro()
     {
-        if (onOutro && hasTextSceneEnded && InputManager.confirm)
+        if (onOutro && hasTextSceneEnded && input.confirm)
         {
-            InputManager.confirm = false;
+            input.confirm = false;
             hasTextSceneEnded = false;
-            fader.FadeToNextScene("wotn_credits");
+            fader.FadeToNextScene(Scenes.CREDITS);
         }
     }
 
@@ -104,12 +108,12 @@ public class StageManager : MonoBehaviour
     {
         if (onCredits)
         {
-            if (!initializing && (InputManager.escape || InputManager.confirm))
+            if (!isLoading && (input.escape || input.confirm))
             {
-                initializing = true;
-                InputManager.escape = false;
-                InputManager.confirm = false;
-                fader.FadeToNextScene("wotn_title");
+                isLoading = true;
+                input.escape = false;
+                input.confirm = false;
+                fader.FadeToNextScene(Scenes.INTRO);
             }
         }
     }
@@ -131,46 +135,51 @@ public class StageManager : MonoBehaviour
 
     private int ExtractStageNumber(string activeScene)
     {
-        string[] splitSceneName = activeScene.Split('_');
-        if (splitSceneName.Length == 3)
-            return Int32.Parse(splitSceneName[2]);
+        string[] stages = Scenes.STAGES;
+        for (int i = 0; i < stages.Length; i++)
+        {
+            if (stages[i] == activeScene)
+            {
+                return i;
+            }
+        }
         return -1;
     }
 
-    public static void InitializeNextStage()
+    public void InitializeNextStage()
     {
-        if (!initializing)
+        if (!isLoading)
         {
-            initializing = true;
+            isLoading = true;
             currentStage++;
             currentCheckpoint = 0;
             if (currentStage > 0 && currentStage <= lastStage)
             {
-                fader.FadeToNextScene("wotn_stage_" + currentStage);
+                fader.FadeToNextScene(Scenes.STAGES[currentStage]);
             }
             else
             {
-                fader.FadeToNextScene("wotn_outro");
+                fader.FadeToNextScene(Scenes.CREDITS);
             }
         }
     }
 
-    public static void ReloadScene()
+    public void ReloadScene()
     {
-        if (!initializing)
+        if (!isLoading)
         {
-            initializing = true;
-            fader.FadeToNextScene("wotn_stage_" + currentStage);
+            isLoading = true;
+            fader.FadeToNextScene(Scenes.STAGES[currentStage]);
         }
     }
-    internal static void changeCurrentCheckpoint(int newCheckpoint)
+    internal void changeCurrentCheckpoint(int newCheckpoint)
     {
         currentCheckpoint = newCheckpoint;
     }
 
-    public static void ExitScene()
+    public void ExitScene()
     {
-        fader.FadeToNextScene("wotn_title");
+        fader.FadeToNextScene(Scenes.TITLE);
     }
 
     void OnEnable()
@@ -188,7 +197,7 @@ public class StageManager : MonoBehaviour
     void OnLevelFinishedLoading(Scene scene, LoadSceneMode mode)
     {
         hasTextSceneEnded = false;
-        initializing = false;
+        isLoading = false;
         onStage = scene.name.Contains("stage");
         IdentifyScene(scene);
 
@@ -198,7 +207,7 @@ public class StageManager : MonoBehaviour
 
             foreach (Checkpoint checkpoint in checkpoints)
             {
-                if (currentCheckpoint == checkpoint.getCheckpointIdentifier())
+                if (currentCheckpoint == checkpoint.CheckpointId)
                 {
                     FindObjectOfType<NinjaMove>().transform.position = checkpoint.transform.position;
                 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -7,18 +6,21 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     private static GameManager instance = null;
-    public AudioManager audioManager;
-    private static bool isPaused;
-    public static bool IsPaused { get { return isPaused; } }
-    private void HandleAudioThemeFor(Scene scene)
-    {
-        if (scene.name == "wotn_stage_1" || scene.name == "wotn_stage_2")
-            audioManager.PlayTheme("theme1");
-        else if (scene.name == "wotn_stage_3" || scene.name == "wotn_stage_4")
-            audioManager.PlayTheme("theme2");
-        else
-            audioManager.StopTheme();
-    }
+
+    private AudioManager audioManager;
+    private InputManager input;
+    private StageManager stageManager;
+    private TextBoxManager textBoxManager;
+    private UIManager ui;
+    private bool isStopped;
+
+    public static AudioManager _AudioManager { get { return instance.audioManager; } }
+    public static InputManager _Input { get { return instance.input; } }
+    public static StageManager _StageManager { get { return instance.stageManager; } }
+    public static TextBoxManager _TextBoxManager { get { return instance.textBoxManager; } }
+    public static UIManager _UI { get { return instance.ui; } }
+    public static bool IsStopped { get { return instance.isStopped; } }
+    public static bool IsPaused { get { return instance.ui.isPaused; } }
 
     // Singleton pattern
     void Awake()
@@ -34,11 +36,12 @@ public class GameManager : MonoBehaviour
         }
         DontDestroyOnLoad(gameObject);
         Application.targetFrameRate = 60;
-    }
 
-    internal static void Pause()
-    {
-        isPaused = true;
+        audioManager = GetComponentInChildren<AudioManager>();
+        input = GetComponentInChildren<InputManager>();
+        stageManager = GetComponentInChildren<StageManager>();
+        textBoxManager = GetComponentInChildren<TextBoxManager>();
+        ui = GetComponentInChildren<UIManager>();
     }
 
     // The following Methods handle the event of a freshly loaded scene
@@ -54,7 +57,7 @@ public class GameManager : MonoBehaviour
     }
     void OnLevelFinishedLoading(Scene scene, LoadSceneMode mode)
     {
-        HandleAudioThemeFor(scene);
+        audioManager.OnLevelFinishedLoading(scene);
         StartCoroutine(ActivateControlsIn(1F));
         Time.timeScale = 1f;
     }
@@ -62,6 +65,12 @@ public class GameManager : MonoBehaviour
     private IEnumerator ActivateControlsIn(float v)
     {
         yield return new WaitForSeconds(v);
-        InputManager.active = true;
+        input.active = true;
+    }
+
+    internal static void Pause(bool pause = true)
+    {
+        instance.isStopped = pause;
+        Time.timeScale = instance.isStopped ? 0f : 1f;
     }
 }

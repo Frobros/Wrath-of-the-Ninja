@@ -45,16 +45,18 @@ public class TouchBehaviour : MonoBehaviour
     public static int iMovingFinger = -1;
     public static Vector2 neutralScreenPosition;
     private bool useInGameControls;
+    private StageManager stageManager;
 
     private void Start()
     {
         neutralScreenPosition = .5f * new Vector2(Camera.main.scaledPixelWidth, Camera.main.scaledPixelHeight);
+        stageManager = GameManager._StageManager;
     }
 
     internal void Update()
     {
-        active = InputManager.touchActive && InputManager.active;
-        useInGameControls = StageManager.onStage && !UIManager.paused;
+        active = GameManager._Input.touchActive && GameManager._Input.active;
+        useInGameControls = stageManager.IsOnStage && !GameManager.IsStopped;
         joystick.gameObject.SetActive(useInGameControls);
 
         if (active)

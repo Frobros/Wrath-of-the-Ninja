@@ -7,7 +7,7 @@ public class NinjaHide : MonoBehaviour
 
     public bool hidden = false;
 
-    private SpriteRenderer renderer;
+    private SpriteRenderer spriteRenderer;
     public float interpolateIn;
     private float lerp;
     private Color color1;
@@ -15,8 +15,8 @@ public class NinjaHide : MonoBehaviour
 
     private void Start()
     {
-        renderer = GetComponent<SpriteRenderer>();
-        color1 = renderer.color;
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        color1 = spriteRenderer.color;
     }
 
     private void Update()
@@ -30,7 +30,7 @@ public class NinjaHide : MonoBehaviour
             lerp = Mathf.Max(lerp - Time.deltaTime / interpolateIn, 0f);
         }
 
-        renderer.color = Color.Lerp(color1, color2, lerp);
+        spriteRenderer.color = Color.Lerp(color1, color2, lerp);
     }
 
     public void Hide()

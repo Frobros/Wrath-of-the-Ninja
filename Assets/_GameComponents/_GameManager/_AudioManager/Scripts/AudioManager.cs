@@ -72,6 +72,7 @@ public class AudioManager : MonoBehaviour {
             return;
         }
         FadeOutOtherThemes();
+        t.source.volume = t.volume;
         t.source.Play();
     }
 
@@ -118,20 +119,23 @@ public class AudioManager : MonoBehaviour {
         }
     }
 
-    void OnEnable()
-    {
-        //Tell our 'OnLevelFinishedLoading' function to start listening for a scene change as soon as this script is enabled.
-        SceneManager.sceneLoaded += OnLevelFinishedLoading;
-    }
 
-    void OnDisable()
-    {
-        //Tell our 'OnLevelFinishedLoading' function to stop listening for a scene change as soon as this script is disabled. Remember to always have an unsubscription for every delegate you subscribe to!
-        SceneManager.sceneLoaded -= OnLevelFinishedLoading;
-    }
-
-    void OnLevelFinishedLoading(Scene scene, LoadSceneMode mode)
+    public void OnLevelFinishedLoading(Scene scene)
     {
         StopAllSounds();
+        HandleAudioThemeFor(scene);
+    }
+
+
+    private void HandleAudioThemeFor(Scene scene)
+    {
+        if (scene.name == Scenes.TITLE || scene.name == Scenes.CONTROLS || scene.name == Scenes.INTRO || scene.name == Scenes.CREDITS)
+            PlayTheme("intro");
+        else if (scene.name == Scenes.STAGES[0] || scene.name == Scenes.STAGES[1])
+            PlayTheme("theme1");
+        else if (scene.name == Scenes.STAGES[2] || scene.name == Scenes.STAGES[3] || scene.name == Scenes.CREDITS)
+            PlayTheme("theme2");
+        else
+            StopTheme();
     }
 }
